@@ -2,6 +2,7 @@ import { CircleMarker, LatLng, Point } from 'leaflet';
 import { CircleClusterMarker } from '../CircleClusterMarker';
 import type { Clustering } from './model';
 import { Fsac } from '../fsac';
+
 type Circle = {
   x: number;
   y: number;
@@ -9,19 +10,22 @@ type Circle = {
   n: number;
 };
 
-type CircleDatum = Circle & {
-  data: CircleMarker;
+type Leaf<D = any> = {
+  data: D;
 };
 
-type CircleCluster = Circle & {
-  children: (CircleCluster | CircleDatum)[];
+type Node<D = any> = {
+  children: (Node<D> | Leaf<D>)[];
 };
+
+
+type FsacClusteringOptions = { padding?: number }
 
 export class FsacClustering implements Clustering {
-  private _fsac: Fsac<CircleDatum | CircleCluster>;
+  private _fsac: Fsac<Circle & (Leaf<CircleMarker> | Node<CircleMarker>)>;
 
   constructor({ padding = 0 }: FsacClusteringOptions = {}) {
-this._fsac = new Fsac({
+    this._fsac = new Fsac({
       bbox(circle) {
         return {
           minX: circle.x - circle.r - padding,
@@ -60,7 +64,7 @@ this._fsac = new Fsac({
     project: (layer: LatLng) => Point,
     unproject: (point: { x: number; y: number }) => LatLng
   ): CircleClusterMarker[] {
-    const circles: CircleDatum[] = markers.map((data) => {
+    const circles = markers.map((data) => {
       const { x, y } = project(data.getLatLng());
       return {
         x,
@@ -76,19 +80,19 @@ this._fsac = new Fsac({
     return clusters.map(
       (c) =>
         new CircleClusterMarker(unproject(c), flatten(c), {
-          radius: c.r,
+          radius: c.r
         })
     );
   }
 }
 
-function flatten(cluster: CircleCluster | CircleDatum) {
-  function loop(acc: CircleMarker[], stack: (CircleCluster | CircleDatum)[]) {
+function flatten<T>(cluster: Node<T> | Leaf<T>) {
+  function loop(acc: T[], stack: (Node<T> | Leaf<T>)[]) {
     if (stack.length === 0) return acc;
 
     const head = stack.shift()!;
 
-    if (isDatum(head)) acc.push(head.data);
+    if (isLeaf(head)) acc.push(head.data);
     else stack.push(...head.children);
 
     return loop(acc, stack);
@@ -97,6 +101,6 @@ function flatten(cluster: CircleCluster | CircleDatum) {
   return loop([], [cluster]);
 }
 
-function isDatum(cluster: CircleCluster | CircleDatum): cluster is CircleDatum {
-  return (cluster as CircleDatum).data !== undefined;
+function isLeaf(cluster: Node | Leaf): cluster is Leaf {
+  return (cluster as Leaf).data !== undefined;
 }
