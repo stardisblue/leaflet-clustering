@@ -1,12 +1,12 @@
 import { CircleMarker, FeatureGroup, LeafletEvent, Map } from 'leaflet';
 import { CircleClusterMarker } from './CircleClusterMarker';
-import { ClusteringAlgorithm } from './clustering/model';
-import { FsacClusteringAlgorithm } from './clustering/FsacClusteringAlgorithm';
+import { Clustering } from './clustering/model';
+import { FsacClustering } from './clustering/FsacClustering';
 
-type ClusterMarkerGroupOptions = { method?: ClusteringAlgorithm };
+type ClusterMarkerGroupOptions = { method?: Clustering };
 
 interface ClusterFeatureGroup extends FeatureGroup {
-  _clusterer: ClusteringAlgorithm;
+  _clusterer: Clustering;
   _markers: CircleMarker[];
   _moveEnd(e: LeafletEvent): void;
   _zoomEnd(e: LeafletEvent): void;
@@ -25,10 +25,11 @@ export const ClusterFeatureGroup: ClusterFeatureGroup = FeatureGroup.extend({
     { method, ...options }: ClusterMarkerGroupOptions = {}
   ) {
     this._markers = layers;
-    this._clusterer = method ?? new FsacClusteringAlgorithm();
+    this._clusterer = method ?? new FsacClustering();
 
     (FeatureGroup.prototype as any).initialize.call(this, [], options);
   },
+
   addLayer(this: ClusterFeatureGroup, layer: CircleMarker) {
     if (layer instanceof CircleClusterMarker) {
       // this is bad dealing with how FeatureGroup manages layers
@@ -79,9 +80,6 @@ export const ClusterFeatureGroup: ClusterFeatureGroup = FeatureGroup.extend({
   _moveEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {},
 
   clusterize(this: ClusterFeatureGroup) {
-    console.log(this._zoom);
-    console.log(this._map.getZoom());
-
     const layers = this._clusterer.clusterize(
       this._markers,
       (latlng) => this._map.project(latlng, this._zoom),

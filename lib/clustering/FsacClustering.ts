@@ -1,6 +1,6 @@
 import { CircleMarker, LatLng, Point } from 'leaflet';
 import { CircleClusterMarker } from '../CircleClusterMarker';
-import type { ClusteringAlgorithm } from './model';
+import type { Clustering } from './model';
 import { Fsac } from '../fsac';
 type Circle = {
   x: number;
@@ -15,7 +15,7 @@ type CircleCluster = Circle & {
   children: (CircleCluster | CircleDatum)[];
 };
 
-export class FsacClusteringAlgorithm implements ClusteringAlgorithm {
+export class FsacClustering implements Clustering {
   private _fsac: Fsac<CircleDatum | CircleCluster>;
   constructor() {
     this._fsac = new Fsac<CircleDatum | CircleCluster>({

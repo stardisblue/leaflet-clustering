@@ -1,7 +1,7 @@
 import { CircleMarker, LatLng, Point } from 'leaflet';
 import { CircleClusterMarker } from '../CircleClusterMarker';
 
-export interface ClusteringAlgorithm {
+export interface Clustering {
   clusterize(
     items: CircleMarker[],
     project: (latlng: LatLng) => Point,
