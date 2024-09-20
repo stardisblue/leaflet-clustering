@@ -1,7 +1,8 @@
+import { scaleSqrt } from 'd3-scale';
 import { CircleMarker, LatLng, Point } from 'leaflet';
 import { CircleClusterMarker } from '../CircleClusterMarker';
-import type { Clustering } from './model';
 import { Fsac } from '../fsac';
+import type { Clustering } from './model';
 
 type Circle = {
   x: number;
@@ -18,13 +19,29 @@ type Node<D = any> = {
   children: (Node<D> | Leaf<D>)[];
 };
 
+interface Scaler {
+  (value: number): number;
+  invert(value: number): number;
+}
 
-type FsacClusteringOptions = { padding?: number }
+type FsacClusteringOptions = { padding?: number; scale?: Scaler };
 
 export class FsacClustering implements Clustering {
   private _fsac: Fsac<Circle & (Leaf<CircleMarker> | Node<CircleMarker>)>;
+  private _scale: Scaler;
 
-  constructor({ padding = 0 }: FsacClusteringOptions = {}) {
+  constructor({
+    padding = 0,
+    scale = scaleSqrt(),
+  }: FsacClusteringOptions = {}) {
+    this._scale = scale;
+
+    // there is only 2 kinds of Markers
+    //- CircleMarkers: props: x, y, r
+    //- Markers: icon bbox. The default icon has all the necessary information to generate an accurate collision model
+    //  - DivIcon custom could allow custom shapes, but that will render them size independent,
+    //    and should only be used for CircleClusterMarker representations
+
     this._fsac = new Fsac({
       bbox(circle) {
         return {
@@ -41,7 +58,9 @@ export class FsacClustering implements Clustering {
         return a.y - a.r - (b.y - b.r);
       },
       overlap(a, b) {
-        return (a.r + b.r + padding) ** 2 - ((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+        return (
+          (a.r + b.r + padding) ** 2 - ((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
+        );
       },
       merge(a, b) {
         const xs = a.x * a.n + b.x * b.n,
@@ -51,7 +70,7 @@ export class FsacClustering implements Clustering {
         return {
           x: xs / n,
           y: ys / n,
-          r: Math.sqrt(n),
+          r: scale(n),
           n,
           children: [a, b],
         };
@@ -66,11 +85,12 @@ export class FsacClustering implements Clustering {
   ): CircleClusterMarker[] {
     const circles = markers.map((data) => {
       const { x, y } = project(data.getLatLng());
+      const r = data.getRadius();
       return {
         x,
         y,
-        r: data.getRadius(),
-        n: data.getRadius() ** 2,
+        r,
+        n: this._scale.invert(r),
         data,
       };
     });
@@ -80,7 +100,7 @@ export class FsacClustering implements Clustering {
     return clusters.map(
       (c) =>
         new CircleClusterMarker(unproject(c), flatten(c), {
-          radius: c.r
+          radius: c.r,
         })
     );
   }
@@ -93,7 +113,7 @@ function flatten<T>(cluster: Node<T> | Leaf<T>) {
     const head = stack.shift()!;
 
     if (isLeaf(head)) acc.push(head.data);
-    else stack.push(...head.children);
+    else stack.push.apply(stack, head.children);
 
     return loop(acc, stack);
   }
