@@ -1,9 +1,9 @@
 import { CircleMarker, FeatureGroup, LeafletEvent, Map } from 'leaflet';
 import { CircleClusterMarker } from './CircleClusterMarker';
-import { Clustering } from './clustering/model';
 import { FsacClustering } from './clustering/FsacClustering';
+import { Clustering } from './clustering/model';
 
-type ClusterMarkerGroupOptions = { method?: Clustering, padding?: number };
+type ClusterMarkerGroupOptions = { method?: Clustering; padding?: number };
 
 interface ClusterFeatureGroup extends FeatureGroup {
   _clusterer: Clustering;
@@ -11,7 +11,7 @@ interface ClusterFeatureGroup extends FeatureGroup {
   _moveEnd(e: LeafletEvent): void;
   _zoomEnd(e: LeafletEvent): void;
   _zoom: number;
-  new(clusters: CircleMarker[], options?: ClusterMarkerGroupOptions): this;
+  new (clusters: CircleMarker[], options?: ClusterMarkerGroupOptions): this;
   getLayers(): CircleClusterMarker[];
   addLayer(layer: CircleMarker): this;
   removeLayer(layer: CircleMarker): this;
@@ -77,7 +77,7 @@ export const ClusterFeatureGroup: ClusterFeatureGroup = FeatureGroup.extend({
     this.clusterize();
   },
 
-  _moveEnd(this: ClusterFeatureGroup, _e: LeafletEvent) { },
+  _moveEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {},
 
   clusterize(this: ClusterFeatureGroup) {
     const layers = this._clusterer.clusterize(

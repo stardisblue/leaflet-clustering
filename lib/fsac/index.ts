@@ -1,5 +1,5 @@
-import { ref } from './ref';
 import { rBush, RbushOptions } from './rBush';
+import { ref } from './ref';
 
 export type FsacOptions<T> = RbushOptions<T> & {
   overlap: (a: T, b: T) => number;

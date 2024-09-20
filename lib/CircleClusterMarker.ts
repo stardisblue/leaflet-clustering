@@ -1,4 +1,5 @@
 import { CircleMarker, LatLng, Util } from 'leaflet';
+
 export type CircleMarkerClusterOptions = {
   radius: number;
   weight?: (marker: CircleMarker) => number;
