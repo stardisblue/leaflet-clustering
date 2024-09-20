@@ -1,7 +1,7 @@
 import { CircleMarker, LatLng, Point } from 'leaflet';
-import { CircleClusterMarker } from './CircleClusterMarker';
-import { ClusteringAlgorithm } from './ClusteringAlgorithm';
-import { Fsac } from './fsac';
+import { CircleClusterMarker } from '../CircleClusterMarker';
+import type { ClusteringAlgorithm } from './model';
+import { Fsac } from '../fsac';
 type Circle = {
   x: number;
   y: number;

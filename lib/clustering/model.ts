@@ -1,5 +1,5 @@
 import { CircleMarker, LatLng, Point } from 'leaflet';
-import { CircleClusterMarker } from './CircleClusterMarker';
+import { CircleClusterMarker } from '../CircleClusterMarker';
 
 export interface ClusteringAlgorithm {
   clusterize(
