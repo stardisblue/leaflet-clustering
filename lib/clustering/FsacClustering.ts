@@ -19,14 +19,15 @@ type CircleCluster = Circle & {
 
 export class FsacClustering implements Clustering {
   private _fsac: Fsac<CircleDatum | CircleCluster>;
-  constructor() {
-    this._fsac = new Fsac<CircleDatum | CircleCluster>({
+
+  constructor({ padding = 0 }: FsacClusteringOptions = {}) {
+this._fsac = new Fsac({
       bbox(circle) {
         return {
-          minX: circle.x - circle.r,
-          minY: circle.y - circle.r,
-          maxX: circle.x + circle.r,
-          maxY: circle.y + circle.r,
+          minX: circle.x - circle.r - padding,
+          minY: circle.y - circle.r - padding,
+          maxX: circle.x + circle.r + padding,
+          maxY: circle.y + circle.r + padding,
         };
       },
       compareMinX(a, b) {
@@ -36,7 +37,7 @@ export class FsacClustering implements Clustering {
         return a.y - a.r - (b.y - b.r);
       },
       overlap(a, b) {
-        return (a.r + b.r) ** 2 - ((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+        return (a.r + b.r + padding) ** 2 - ((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
       },
       merge(a, b) {
         const xs = a.x * a.n + b.x * b.n,
@@ -65,7 +66,7 @@ export class FsacClustering implements Clustering {
         x,
         y,
         r: data.getRadius(),
-        n: data.getRadius() * data.getRadius(),
+        n: data.getRadius() ** 2,
         data,
       };
     });
