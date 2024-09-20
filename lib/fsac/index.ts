@@ -40,7 +40,9 @@ export class Fsac<T> {
 
       while (clustered) {
         clustered = false;
-        const µ_candidates = collision.search(collision.toBBox(µ_cluster));
+        const µ_candidates = collision.search(
+          collision.toBBox({ current: cluster })
+        );
 
         const indexes = new Uint32Array(µ_candidates.length);
         {
