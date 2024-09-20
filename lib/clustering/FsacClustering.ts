@@ -8,9 +8,11 @@ type Circle = {
   r: number;
   n: number;
 };
+
 type CircleDatum = Circle & {
-  datum: CircleMarker;
+  data: CircleMarker;
 };
+
 type CircleCluster = Circle & {
   children: (CircleCluster | CircleDatum)[];
 };
@@ -51,19 +53,20 @@ export class FsacClustering implements Clustering {
       },
     });
   }
+
   clusterize(
     markers: CircleMarker[],
     project: (layer: LatLng) => Point,
     unproject: (point: { x: number; y: number }) => LatLng
   ): CircleClusterMarker[] {
-    const circles: CircleDatum[] = markers.map((m) => {
-      const { x, y } = project(m.getLatLng());
+    const circles: CircleDatum[] = markers.map((data) => {
+      const { x, y } = project(data.getLatLng());
       return {
         x,
         y,
-        r: m.getRadius(),
-        n: m.getRadius() * m.getRadius(),
-        datum: m,
+        r: data.getRadius(),
+        n: data.getRadius() * data.getRadius(),
+        data,
       };
     });
 
@@ -84,7 +87,7 @@ function flatten(cluster: CircleCluster | CircleDatum) {
 
     const head = stack.shift()!;
 
-    if (isDatum(head)) acc.push(head.datum);
+    if (isDatum(head)) acc.push(head.data);
     else stack.push(...head.children);
 
     return loop(acc, stack);
@@ -94,5 +97,5 @@ function flatten(cluster: CircleCluster | CircleDatum) {
 }
 
 function isDatum(cluster: CircleCluster | CircleDatum): cluster is CircleDatum {
-  return (cluster as CircleDatum).datum !== undefined;
+  return (cluster as CircleDatum).data !== undefined;
 }
