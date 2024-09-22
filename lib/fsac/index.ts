@@ -1,5 +1,6 @@
-import { rBush, RbushOptions } from './rBush';
-import { ref } from './ref';
+import type RBush from 'rbush';
+import { rBushFactory, RbushOptions } from './rBush';
+import { Ref, ref } from './ref';
 
 export type FsacOptions<T> = RbushOptions<T> & {
   overlap: (a: T, b: T) => number;
@@ -15,12 +16,12 @@ export type FsacRunOptions = {
 export class Fsac<T> {
   private _overlap: (a: T, b: T) => number;
   private _merge: (a: T, b: T) => T;
-  private _rbushOptions: RbushOptions<T>;
+  private CustomRbush: typeof RBush<Ref<T>>;
 
   constructor({ overlap, merge, ...rBushOptions }: FsacOptions<T>) {
-    this._rbushOptions = rBushOptions as RbushOptions<T>;
     this._overlap = overlap;
     this._merge = merge;
+    this.CustomRbush = rBushFactory(rBushOptions);
   }
 
   clusterize(
@@ -29,7 +30,7 @@ export class Fsac<T> {
   ) {
     const µ_clusters = clusters.map(ref);
 
-    const collision = rBush(this._rbushOptions);
+    const collision = new this.CustomRbush();
     collision.load(µ_clusters);
 
     const µ_alives = new Set(µ_clusters);

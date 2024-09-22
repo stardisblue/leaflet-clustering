@@ -5,10 +5,9 @@ export type RbushOptions<T> = {
   bbox: (item: T) => BBox;
   compareMinX: (a: T, b: T) => number;
   compareMinY: (a: T, b: T) => number;
-  maxEntries?: number;
 };
 
-export function rBush<T>(options: RbushOptions<T>): RBush<Ref<T>> {
+export function rBushFactory<T>(options: RbushOptions<T>) {
   class RefRbush extends RBush<Ref<T>> {
     toBBox(µ_item: Ref<T>) {
       return options.bbox(µ_item.current);
@@ -23,5 +22,5 @@ export function rBush<T>(options: RbushOptions<T>): RBush<Ref<T>> {
     }
   }
 
-  return new RefRbush(options.maxEntries);
+  return RefRbush;
 }
