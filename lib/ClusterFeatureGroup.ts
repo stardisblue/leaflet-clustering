@@ -64,6 +64,7 @@ export const ClusterFeatureGroup: ClusterFeatureGroup = FeatureGroup.extend({
     this._map.off('zoomend', this._zoomEnd, this);
     this._map.off('moveend', this._moveEnd, this);
 
+    this.clearLayers();
     FeatureGroup.prototype.onRemove.call(this, map);
   },
 

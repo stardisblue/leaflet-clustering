@@ -61,4 +61,18 @@ describe('ClusterFeatureGroup', () => {
     }, 0);
   });
 
+  it<Context>('should disable clustering when removed from map', ({
+    markers,
+    map,
+  }) => {
+    map.setView([48.9, 2.3], 3);
+    markers.forEach((m) => m.setRadius(30));
+    const cluster = new ClusterFeatureGroup(markers);
+    cluster.addTo(map);
+    map.removeLayer(cluster);
+
+    setTimeout(() => {
+      expect(cluster.getLayers().length).toEqual(0);
+    }, 0);
+  });
 });
