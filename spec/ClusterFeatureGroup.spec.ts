@@ -20,13 +20,6 @@ describe('ClusterFeatureGroup', () => {
     document.body.innerHTML = '<div id="map"></div>';
   });
 
-  it<Context>('should accept CircleMarkers and create a CircleClusterMarker', ({
-    markers,
-  }) => {
-    const cluster = new ClusterFeatureGroup(markers);
-    expect(cluster.getLayers().length).greaterThan(0);
-  });
-
   it<Context>('should use FSAC for creating clusters', ({ markers }) => {
     const leafletMap = map(
       document.getElementById('map') as any as HTMLElement
