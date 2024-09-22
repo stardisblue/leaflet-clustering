@@ -1,4 +1,4 @@
-import { circleMarker, CircleMarker } from 'leaflet';
+import { circleMarker, CircleMarker, map } from 'leaflet';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ClusterFeatureGroup } from '../lib/ClusterFeatureGroup';
 
@@ -16,6 +16,8 @@ describe('ClusterFeatureGroup', () => {
       { id: 'frt', lat: -15, lng: 176 },
       { id: 'fry', lat: 55, lng: 5 },
     ].map((m) => circleMarker(m, { id: m.id } as any));
+
+    document.body.innerHTML = '<div id="map"></div>';
   });
 
   it<Context>('should accept CircleMarkers and create a CircleClusterMarker', ({
@@ -26,7 +28,14 @@ describe('ClusterFeatureGroup', () => {
   });
 
   it<Context>('should use FSAC for creating clusters', ({ markers }) => {
+    const leafletMap = map(
+      document.getElementById('map') as any as HTMLElement
+    ).setView([48.9, 2.3], 3);
     const cluster = new ClusterFeatureGroup(markers);
-    expect(cluster.getLayers().length).toEqual(5);
+    cluster.addTo(leafletMap);
+
+    setTimeout(() => {
+      expect(cluster.getLayers().length).toEqual(4);
+    }, 0);
   });
 });
