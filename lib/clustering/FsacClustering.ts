@@ -24,17 +24,17 @@ interface Scaler {
   invert(value: number): number;
 }
 
-type FsacClusteringOptions = { padding?: number; scale?: Scaler };
+type FsacClusteringOptions = { padding?: number; getRadius?: Scaler };
 
 export class FsacClustering implements Clustering {
   private _fsac: Fsac<Circle & (Leaf<CircleMarker> | Node<CircleMarker>)>;
-  private _scale: Scaler;
+  private _getRadius: Scaler;
 
   constructor({
     padding = 0,
-    scale = scaleSqrt(),
+    getRadius = scaleSqrt(),
   }: FsacClusteringOptions = {}) {
-    this._scale = scale;
+    this._getRadius = getRadius;
 
     // there is only 2 kinds of Markers
     //- CircleMarkers: props: x, y, r
@@ -70,7 +70,7 @@ export class FsacClustering implements Clustering {
         return {
           x: xs / n,
           y: ys / n,
-          r: scale(n),
+          r: getRadius(n),
           n,
           children: [a, b],
         };
@@ -90,7 +90,7 @@ export class FsacClustering implements Clustering {
         x,
         y,
         r,
-        n: this._scale.invert(r),
+        n: this._getRadius.invert(r),
         data,
       };
     });
