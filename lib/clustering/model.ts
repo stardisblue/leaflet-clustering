@@ -1,13 +1,11 @@
-import { LatLng, Point } from 'leaflet';
 import { BBox } from 'rbush';
 import { CircleClusterMarker, SupportedMarker } from '../CircleClusterMarker';
 import { Leaf, Pair } from '../binary-tree-traversal';
 
-export interface Clustering {
+export interface Clustering<C> {
   clusterize(
     items: SupportedMarker[],
-    project: (latlng: LatLng) => Point,
-    unproject: (point: { x: number; y: number }) => LatLng
+    options: C
   ): (CircleClusterMarker | SupportedMarker)[];
 }
 

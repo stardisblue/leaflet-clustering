@@ -3,14 +3,15 @@ import { CircleClusterMarker, SupportedMarker } from './CircleClusterMarker';
 import { FsacClustering } from './clustering/FsacClustering';
 import { Clustering } from './clustering/model';
 
-type ClusterMarkerGroupOptions = {
-  method?: Clustering;
+type ClusterMarkerGroupOptions<C extends Clustering<any> = FsacClustering> = {
+  method?: C;
   padding?: number;
   baseRadius?: number;
 };
 
-interface ClusterFeatureGroup extends FeatureGroup {
-  _clusterer: Clustering;
+interface ClusterFeatureGroup<C extends Clustering<any> = FsacClustering>
+  extends FeatureGroup {
+  _clusterer: C;
   _markers: SupportedMarker[];
   _moveEnd(e: LeafletEvent): void;
   _zoomEnd(e: LeafletEvent): void;
@@ -32,8 +33,7 @@ export const ClusterFeatureGroup: ClusterFeatureGroup = FeatureGroup.extend({
     }: ClusterMarkerGroupOptions = {}
   ) {
     this._markers = layers;
-    this._clusterer =
-      method ?? new FsacClustering({ padding, baseRadius: baseRadius });
+    this._clusterer = method ?? new FsacClustering({ padding, baseRadius });
 
     (FeatureGroup.prototype as any).initialize.call(this, [], options);
   },
@@ -69,11 +69,10 @@ export const ClusterFeatureGroup: ClusterFeatureGroup = FeatureGroup.extend({
   _moveEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {},
 
   clusterize(this: ClusterFeatureGroup) {
-    const layers = this._clusterer.clusterize(
-      this._markers,
-      (latlng) => this._map.project(latlng, this._zoom),
-      (point) => this._map.unproject(point as any, this._zoom)
-    );
+    const layers = this._clusterer.clusterize(this._markers, {
+      project: (latlng) => this._map.project(latlng, this._zoom),
+      unproject: (point) => this._map.unproject(point as any, this._zoom),
+    });
 
     this.clearLayers();
     layers.map((l) => this.addLayer(l));

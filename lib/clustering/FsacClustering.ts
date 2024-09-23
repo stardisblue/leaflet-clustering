@@ -1,4 +1,3 @@
-import { scaleSqrt } from 'd3-scale';
 import { CircleMarker, LatLng, Marker, Point } from 'leaflet';
 import { flatten } from '../binary-tree-traversal';
 import { CircleClusterMarker, SupportedMarker } from '../CircleClusterMarker';
@@ -11,20 +10,24 @@ import {
 import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
 import type { Clustering, ClusterizableLeaf } from './model';
 
-type FsacClusteringOptions = Partial<ClusterizableCircleClusterOptions>;
+export type FsacClusteringOptions = Omit<
+  ClusterizableCircleClusterOptions,
+  'padding'
+> & { padding?: number };
 
-export class FsacClustering implements Clustering {
+export type FsacClusterizeOptions = {
+  project: (layer: LatLng) => Point;
+  unproject: (point: { x: number; y: number }) => LatLng;
+};
+
+export class FsacClustering implements Clustering<FsacClusterizeOptions> {
   private fsac: Fsac<ClusterizableCircleCluster | ClusterizableLeaf>;
   private padding: number;
 
-  constructor({
-    padding = 0,
-    scale = scaleSqrt(),
-    weight = () => 1,
-    baseRadius = 10,
-  }: FsacClusteringOptions = {}) {
-    this.padding = padding;
-    // there is only 2 kinds of Markers
+  constructor(options: FsacClusteringOptions = {}) {
+    options.padding ??= 0;
+    this.padding = options.padding;
+
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
     //    and should only be used for CircleClusterMarker representations
     this.fsac = new Fsac({
@@ -32,20 +35,13 @@ export class FsacClustering implements Clustering {
       compareMinX: (a, b) => a.minX - b.minX,
       compareMinY: (a, b) => a.minY - b.minY,
       overlap: (a, b) => a.overlaps(b),
-      merge: (a, b) =>
-        new ClusterizableCircleCluster(a, b, {
-          padding,
-          scale,
-          weight,
-          baseRadius,
-        }),
+      merge: (a, b) => new ClusterizableCircleCluster(a, b, options as any),
     });
   }
 
   clusterize(
     markers: SupportedMarker[],
-    project: (layer: LatLng) => Point,
-    unproject: (point: { x: number; y: number }) => LatLng
+    { project, unproject }: FsacClusterizeOptions
   ): (CircleClusterMarker | SupportedMarker)[] {
     const leafs = markers.map(this.createLeaf(project));
 

@@ -19,10 +19,10 @@
  * [x] Je veux ajouter les cluster en tant que groupe a leaflet
  * [x] Je veux utiliser FSAC pour clusteriser les markers
  * [x] Je veux que l'algorithme soit exécuté dés que je zoom
+ * [x] Je veux accéder au contenu des clusters
  * Je veux modifier la facon dont les cluster sont représentés
- * Je veux accéder au contenu des clusters
  *
- * je veux avoir des padding entre les clusters et pouvoir les changer
+ * [x] je veux avoir des padding entre les clusters et pouvoir les changer
  * Je veux définir l'algorithme de création des clusters
  * Je ne veux pas avoir a gérer les positions gps dans l'algorithme
  * Je veux restreindre le clustering à la fenêtre actuelle
