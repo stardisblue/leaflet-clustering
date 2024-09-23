@@ -11,3 +11,4 @@
 
 - [ ] animate zoom transitions
 - [ ] cache zoom levels
+- [ ] allow to add and remove markers
