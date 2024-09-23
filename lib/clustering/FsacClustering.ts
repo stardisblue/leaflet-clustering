@@ -5,21 +5,16 @@ import { CircleClusterMarker, SupportedMarker } from '../CircleClusterMarker';
 import { Fsac } from '../fsac';
 import {
   ClusterizableCircleCluster,
+  ClusterizableCircleClusterOptions,
   ClusterizableCircleLeaf,
 } from './ClusterizableCircle';
 import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
-import type { Clustering, ClusterizableLeaf, ClusterizablePair } from './model';
+import type { Clustering, ClusterizableLeaf } from './model';
 
-type FsacClusteringOptions = {
-  padding?: number;
-  scale?: (weight: number) => number;
-  weight?: (marker: SupportedMarker) => number;
-  baseRadius?: number;
-};
+type FsacClusteringOptions = Partial<ClusterizableCircleClusterOptions>;
 
 export class FsacClustering implements Clustering {
-  private fsac: Fsac<ClusterizableLeaf | ClusterizablePair>;
-  private getWeight: any;
+  private fsac: Fsac<ClusterizableCircleCluster | ClusterizableLeaf>;
   private padding: number;
 
   constructor({
@@ -28,7 +23,6 @@ export class FsacClustering implements Clustering {
     weight = () => 1,
     baseRadius = 10,
   }: FsacClusteringOptions = {}) {
-    this.getWeight = weight;
     this.padding = padding;
     // there is only 2 kinds of Markers
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
@@ -39,7 +33,12 @@ export class FsacClustering implements Clustering {
       compareMinY: (a, b) => a.minY - b.minY,
       overlap: (a, b) => a.overlaps(b),
       merge: (a, b) =>
-        new ClusterizableCircleCluster(a, b, padding, scale, baseRadius),
+        new ClusterizableCircleCluster(a, b, {
+          padding,
+          scale,
+          weight,
+          baseRadius,
+        }),
     });
   }
 
@@ -70,7 +69,6 @@ export class FsacClustering implements Clustering {
           x,
           y,
           marker.getRadius(),
-          this.getWeight(marker),
           this.padding,
           marker
         );
@@ -95,7 +93,6 @@ export class FsacClustering implements Clustering {
           minY,
           minX + width,
           minY + height,
-          this.getWeight(marker),
           this.padding,
           marker
         );

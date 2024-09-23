@@ -1,14 +1,14 @@
-import { BBox } from 'rbush';
-import { circleCircleOverlap } from './overlap';
 import { CircleMarker } from 'leaflet';
+import { BBox } from 'rbush';
 import { Clusterizable, ClusterizableLeaf, ClusterizablePair } from './model';
+import { circleCircleOverlap } from './overlap';
+import { scaleSqrt } from 'd3';
 
 export abstract class ClusterizableCircle implements Clusterizable {
   constructor(
     readonly x: number,
     readonly y: number,
     readonly r: number,
-    readonly w: number,
     private readonly padding: number
   ) {}
   toPaddedBBox(): BBox {
@@ -34,23 +34,41 @@ export abstract class ClusterizableCircle implements Clusterizable {
   }
 }
 
+export type ClusterizableCircleClusterOptions = {
+  padding: number;
+  scale?: (weight: number) => number;
+  weight?: <T>(leaf: ClusterizablePair | ClusterizableLeaf<T>) => number;
+  baseRadius?: number;
+};
+
 export class ClusterizableCircleCluster
   extends ClusterizableCircle
   implements ClusterizablePair
 {
-  constructor(
-    readonly left: ClusterizablePair | ClusterizableLeaf,
-    readonly right: ClusterizablePair | ClusterizableLeaf,
-    padding: number,
-    scale: (weight: number) => number,
-    baseSize: number
-  ) {
-    const w = left.w + right.w;
-    const x = (left.x * left.w + right.x * right.w) / w;
-    const y = (left.y * left.w + right.y * right.w) / w;
-    const r = scale(w) + baseSize;
+  readonly w: number;
 
-    super(x, y, r, w, padding);
+  constructor(
+    readonly left: ClusterizableCircleCluster | ClusterizableLeaf,
+    readonly right: ClusterizableCircleCluster | ClusterizableLeaf,
+    {
+      padding,
+      scale = scaleSqrt(),
+      weight = () => 1,
+      baseRadius = 10,
+    }: ClusterizableCircleClusterOptions
+  ) {
+    const leftW =
+      left instanceof ClusterizableCircleCluster ? left.w : weight(left);
+    const rightW =
+      right instanceof ClusterizableCircleCluster ? right.w : weight(right);
+
+    const w = leftW + rightW;
+    const x = (left.x * leftW + right.x * rightW) / w;
+    const y = (left.y * leftW + right.y * rightW) / w;
+    const r = scale(w) + baseRadius;
+
+    super(x, y, r, padding);
+    this.w = w;
   }
 }
 
@@ -62,10 +80,9 @@ export class ClusterizableCircleLeaf
     x: number,
     y: number,
     r: number,
-    w: number,
     padding: number,
     readonly data: CircleMarker
   ) {
-    super(x, y, r, w, padding);
+    super(x, y, r, padding);
   }
 }

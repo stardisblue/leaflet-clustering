@@ -12,7 +12,6 @@ export class ClusterizableRectangleLeaf implements ClusterizableLeaf<Marker> {
     readonly minY: number,
     readonly maxX: number,
     readonly maxY: number,
-    readonly w: number,
     private readonly padding: number,
     readonly data: Marker
   ) {}

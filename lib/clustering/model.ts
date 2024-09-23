@@ -14,7 +14,6 @@ export interface Clustering {
 export interface Clusterizable {
   readonly x: number;
   readonly y: number;
-  readonly w: number;
   readonly minX: number;
   readonly minY: number;
   toPaddedBBox(): BBox;
