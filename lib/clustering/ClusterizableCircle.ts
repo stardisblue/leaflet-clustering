@@ -8,22 +8,22 @@ export abstract class ClusterizableCircle implements Clusterizable {
   constructor(
     readonly x: number,
     readonly y: number,
-    readonly r: number,
+    readonly radius: number,
     private readonly padding: number
   ) {}
   toPaddedBBox(): BBox {
     return {
       minX: this.minX - this.padding,
       minY: this.minY - this.padding,
-      maxX: this.x + this.r + this.padding,
-      maxY: this.y + this.r + this.padding,
+      maxX: this.x + this.radius + this.padding,
+      maxY: this.y + this.radius + this.padding,
     };
   }
   get minX(): number {
-    return this.x - this.r;
+    return this.x - this.radius;
   }
   get minY(): number {
-    return this.y - this.r;
+    return this.y - this.radius;
   }
   overlaps<T extends Clusterizable = Clusterizable>(other: T): number {
     if (other instanceof ClusterizableCircle) {
