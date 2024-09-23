@@ -40,7 +40,7 @@ export class FsacClustering<
       ...options
     }: FsacClusteringOptions<O, P> = {} as any
   ) {
-    (options as any).padding ??= 0;
+    (options as any).padding ??= 4;
     this.padding = options.padding as any;
 
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,

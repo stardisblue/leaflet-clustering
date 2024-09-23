@@ -51,7 +51,7 @@ export class ClusterizableCircleCluster
     readonly left: ClusterizableCircleCluster | ClusterizableLeaf,
     readonly right: ClusterizableCircleCluster | ClusterizableLeaf,
     {
-      padding = 4,
+      padding,
       scale = scaleSqrt(),
       weight = () => 1,
       baseRadius = 10,
