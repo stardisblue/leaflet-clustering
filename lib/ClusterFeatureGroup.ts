@@ -1,53 +1,41 @@
-import { CircleMarker, FeatureGroup, LeafletEvent, Map } from 'leaflet';
+import { FeatureGroup, LeafletEvent, Map } from 'leaflet';
 import { CircleClusterMarker } from './CircleClusterMarker';
 import { FsacClustering } from './clustering/FsacClustering';
-import { Clustering } from './clustering/model';
+import { Clustering, SupportedMarker } from './clustering/model';
 
-type ClusterMarkerGroupOptions = { method?: Clustering; padding?: number };
+type ClusterMarkerGroupOptions = {
+  method?: Clustering;
+  padding?: number;
+  baseRadius?: number;
+};
 
 interface ClusterFeatureGroup extends FeatureGroup {
   _clusterer: Clustering;
-  _markers: CircleMarker[];
+  _markers: SupportedMarker[];
   _moveEnd(e: LeafletEvent): void;
   _zoomEnd(e: LeafletEvent): void;
   _zoom: number;
-  new (clusters: CircleMarker[], options?: ClusterMarkerGroupOptions): this;
+  new (clusters: SupportedMarker[], options?: ClusterMarkerGroupOptions): this;
   getLayers(): CircleClusterMarker[];
-  addLayer(layer: CircleMarker): this;
-  removeLayer(layer: CircleMarker): this;
   clusterize(): this;
 }
 
 export const ClusterFeatureGroup: ClusterFeatureGroup = FeatureGroup.extend({
   initialize(
     this: ClusterFeatureGroup,
-    layers: CircleMarker[],
-    { method, padding = 5, ...options }: ClusterMarkerGroupOptions = {}
+    layers: SupportedMarker[],
+    {
+      method,
+      padding = 4,
+      baseRadius = 10,
+      ...options
+    }: ClusterMarkerGroupOptions = {}
   ) {
     this._markers = layers;
-    this._clusterer = method ?? new FsacClustering({ padding });
+    this._clusterer =
+      method ?? new FsacClustering({ padding, baseRadius: baseRadius });
 
     (FeatureGroup.prototype as any).initialize.call(this, [], options);
-  },
-
-  addLayer(this: ClusterFeatureGroup, layer: CircleMarker) {
-    if (layer instanceof CircleClusterMarker) {
-      // this is bad dealing with how FeatureGroup manages layers
-
-      return FeatureGroup.prototype.addLayer.call(this, layer);
-    }
-
-    throw new Error('not implemented');
-  },
-
-  removeLayer(this: ClusterFeatureGroup, layer: CircleMarker) {
-    if (layer instanceof CircleClusterMarker) {
-      // this is bad dealing with how FeatureGroup manages layers
-
-      return FeatureGroup.prototype.removeLayer.call(this, layer);
-    }
-
-    throw new Error('not implemented');
   },
 
   onAdd(this: ClusterFeatureGroup, map: Map) {
