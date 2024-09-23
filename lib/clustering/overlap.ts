@@ -34,7 +34,9 @@ export function circleCircleOverlap(
   b: ClusterizableCircle,
   padding: number
 ): number {
-  return (a.r + b.r + padding) ** 2 - ((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+  return (
+    (a.radius + b.radius + padding) ** 2 - ((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
+  );
 }
 
 /**
@@ -50,5 +52,5 @@ export function rectCircleOverlap(
   const closestX = clamp(b.x, bbox.minX, bbox.maxX);
   const closestY = clamp(b.y, bbox.minY, bbox.maxY);
 
-  return b.r ** 2 - ((b.x - closestX) ** 2 + (b.y - closestY) ** 2);
+  return b.radius ** 2 - ((b.x - closestX) ** 2 + (b.y - closestY) ** 2);
 }

@@ -10,15 +10,21 @@ import {
 import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
 import type { Clustering, ClusterizableLeaf, ClusterizablePair } from './model';
 
-export type FsacClusteringOptions<O, P extends ClusterizablePair> = {
+export type FsacClusteringOptions<
+  O,
+  P extends ClusterizablePair,
+  M extends CircleMarker | Marker = CircleClusterMarker,
+> = {
   padding?: number;
-  Clusterer?: {
-    new (
+  Clusterizer?: P &
+    (new (
       left: P | ClusterizableLeaf,
       right: P | ClusterizableLeaf,
       options: O
-    ): P;
-  };
+    ) => P);
+
+  ClusterMarker?: M &
+    (new (latLng: LatLng, layers: SupportedMarker[], clusterizable: P) => M);
 } & O;
 
 export type FsacClusterizeOptions = {
@@ -29,19 +35,31 @@ export type FsacClusterizeOptions = {
 export class FsacClustering<
   O extends object = ClusterizableCircleClusterOptions,
   P extends ClusterizablePair = ClusterizableCircleCluster,
-> implements Clustering<FsacClusterizeOptions>
+  M extends CircleMarker | Marker = CircleClusterMarker,
+> implements Clustering<FsacClusterizeOptions, M>
 {
   private fsac: Fsac<P | ClusterizableLeaf>;
   private padding: number;
+  private ClusterMarker: M &
+    (new (latLng: LatLng, layers: SupportedMarker[], clusterizable: P) => M);
+  private Clusterizer: P &
+    (new (
+      left: ClusterizableLeaf<any> | P,
+      right: ClusterizableLeaf<any> | P,
+      options: O
+    ) => P);
 
   constructor(
     {
-      Clusterer = ClusterizableCircleCluster as any,
+      Clusterizer = ClusterizableCircleCluster as any,
+      ClusterMarker = CircleClusterMarker as any,
       ...options
-    }: FsacClusteringOptions<O, P> = {} as any
+    }: FsacClusteringOptions<O, P, M> = {} as any
   ) {
     (options as any).padding ??= 4;
-    this.padding = options.padding as any;
+    this.padding = options.padding!;
+    this.Clusterizer = Clusterizer;
+    this.ClusterMarker = ClusterMarker;
 
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
     //    and should only be used for CircleClusterMarker representations
@@ -50,23 +68,23 @@ export class FsacClustering<
       compareMinX: (a, b) => a.minX - b.minX,
       compareMinY: (a, b) => a.minY - b.minY,
       overlap: (a, b) => a.overlaps(b),
-      merge: (a, b) => new Clusterer(a, b, options as any),
+      merge: (a, b) => new Clusterizer(a, b, options as any),
     });
   }
 
   clusterize(
     markers: SupportedMarker[],
     { project, unproject }: FsacClusterizeOptions
-  ): (CircleClusterMarker | SupportedMarker)[] {
+  ): (M | SupportedMarker)[] {
     const leafs = markers.map(this.createLeaf(project));
 
     const clusters = this.fsac.clusterize(leafs);
 
     return clusters.map((c) => {
-      if (c instanceof ClusterizableCircleCluster)
-        return new CircleClusterMarker(unproject(c), flatten(c), {
-          radius: c.r,
-        });
+      if (c instanceof this.Clusterizer)
+        // TODO: I think this should be moved farther up (to ClusterFeatureGroup) the instanceof is bound to ClusterizableCircleCluster but the clusterer could be different
+        // I also think that it might be useful to be able to pass options tào the ClusterMarker when it's created...
+        return new this.ClusterMarker(unproject(c), flatten(c), c);
 
       return (c as ClusterizableLeaf).data;
     });
