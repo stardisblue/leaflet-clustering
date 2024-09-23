@@ -26,7 +26,7 @@ export class FsacClustering implements Clustering {
     padding = 0,
     scale = scaleSqrt(),
     weight = () => 1,
-    baseRadius: baseSize = 10,
+    baseRadius = 10,
   }: FsacClusteringOptions = {}) {
     this.getWeight = weight;
     this.padding = padding;
@@ -34,25 +34,12 @@ export class FsacClustering implements Clustering {
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
     //    and should only be used for CircleClusterMarker representations
     this.fsac = new Fsac({
-      bbox(item) {
-        return item.toPaddedBBox();
-      },
-      compareMinX(a, b) {
-        return a.minX - b.minX;
-      },
-      compareMinY(a, b) {
-        return a.minY - b.minY;
-      },
-      overlap(a, b) {
-        return a.overlaps(b);
-      },
-      merge(a, b) {
-        const w = a.w + b.w;
-        const x = (a.x * a.w + b.x * b.w) / w;
-        const y = (a.y * a.w + b.y * b.w) / w;
-        const r = scale(w) + baseSize;
-        return new ClusterizableCircleCluster(x, y, r, w, padding, a, b);
-      },
+      bbox: (item) => item.toPaddedBBox(),
+      compareMinX: (a, b) => a.minX - b.minX,
+      compareMinY: (a, b) => a.minY - b.minY,
+      overlap: (a, b) => a.overlaps(b),
+      merge: (a, b) =>
+        new ClusterizableCircleCluster(a, b, padding, scale, baseRadius),
     });
   }
 
