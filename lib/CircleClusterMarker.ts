@@ -8,18 +8,17 @@ import {
 
 export type SupportedMarker = CircleMarker | Marker;
 
-export type CircleMarkerClusterOptions = CircleMarkerOptions & {
+export type CircleClusterMarkerOptions = CircleMarkerOptions & {
   radius: number;
 };
 
 export interface CircleClusterMarker extends CircleMarker {
   _layers: Record<number, SupportedMarker>;
-
   new (
     latLng: LatLng,
     layers: SupportedMarker[],
-    options: CircleMarkerClusterOptions
-  ): this;
+    options: CircleClusterMarkerOptions
+  ): CircleClusterMarker;
   getLayers(): SupportedMarker[];
   getLayerId(layer: SupportedMarker): number;
 }
@@ -32,7 +31,7 @@ export const CircleClusterMarker: CircleClusterMarker = CircleMarker.extend({
     this: CircleClusterMarker,
     latLng: LatLng,
     layers: SupportedMarker[],
-    { radius, ...options }: CircleMarkerClusterOptions
+    { radius, ...options }: CircleClusterMarkerOptions
   ) {
     this._layers = Object.fromEntries(
       Array.from(layers, (l) => [this.getLayerId(l), l])
