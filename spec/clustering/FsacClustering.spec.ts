@@ -1,41 +1,51 @@
 import { describe, expect, test } from 'vitest';
 import { ClusterizableRectangleLeaf } from '../../lib/clustering/ClusterizableRectangle';
-import { marker } from 'leaflet';
-import { BBox } from 'rbush';
+import { icon, marker } from 'leaflet';
 
-const bbox = ({ minX, minY, maxX, maxY }: BBox) =>
+const rect = ({
+  x,
+  y,
+  width,
+  height,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}) =>
   new ClusterizableRectangleLeaf(
+    x,
+    y,
     0,
-    0,
-    minX,
-    minY,
-    maxX,
-    maxY,
-    0,
-    0,
-    marker([0, 0])
+    marker([0, 0], {
+      icon: icon({
+        iconAnchor: [0, 0],
+        iconUrl: '',
+        iconSize: [width, height],
+      }),
+    })
   );
 
 describe('Rectangle Rectangle Overlap', () => {
   test.each([
     [
-      bbox({ minX: 0, minY: 0, maxX: 10, maxY: 10 }),
-      bbox({ minX: 5, minY: 5, maxX: 15, maxY: 15 }),
+      rect({ x: 0, y: 0, width: 10, height: 10 }),
+      rect({ x: 5, y: 5, width: 10, height: 10 }),
       25,
     ],
     [
-      bbox({ minX: 0, minY: 0, maxX: 10, maxY: 10 }),
-      bbox({ minX: 15, minY: 15, maxX: 25, maxY: 25 }),
+      rect({ x: 0, y: 0, width: 10, height: 10 }),
+      rect({ x: 15, y: 15, width: 10, height: 10 }),
       -25,
     ],
     [
-      bbox({ minX: 0, minY: 0, maxX: 10, maxY: 10 }),
-      bbox({ minX: 5, minY: 15, maxX: 15, maxY: 25 }),
+      rect({ x: 0, y: 0, width: 10, height: 10 }),
+      rect({ x: 5, y: 15, width: 10, height: 10 }),
       -25,
     ],
     [
-      bbox({ minX: 0, minY: 0, maxX: 10, maxY: 10 }),
-      bbox({ minX: 15, minY: 5, maxX: 25, maxY: 15 }),
+      rect({ x: 0, y: 0, width: 10, height: 10 }),
+      rect({ x: 15, y: 5, width: 10, height: 10 }),
       -25,
     ],
   ])(
