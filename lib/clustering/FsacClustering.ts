@@ -76,37 +76,9 @@ export class FsacClustering<
     return (marker: SupportedMarker) => {
       const { x, y } = project(marker.getLatLng());
       if (marker instanceof CircleMarker) {
-        return new ClusterizableCircleLeaf(
-          x,
-          y,
-          marker.getRadius(),
-          this.padding,
-          marker
-        );
+        return new ClusterizableCircleLeaf(x, y, this.padding, marker);
       } else if (marker instanceof Marker) {
-        const icon = marker.getIcon();
-
-        if (
-          icon.options.iconSize === undefined ||
-          icon.options.iconAnchor === undefined
-        ) {
-          throw new Error('iconSize or iconAnchor is not defined');
-        }
-
-        const [xAnchor, yAnchor] = icon.options.iconAnchor as number[];
-        const minX = x - xAnchor;
-        const minY = y - yAnchor;
-        const [width, height] = icon.options.iconSize as number[];
-        return new ClusterizableRectangleLeaf(
-          x,
-          y,
-          minX,
-          minY,
-          minX + width,
-          minY + height,
-          this.padding,
-          marker
-        );
+        return new ClusterizableRectangleLeaf(x, y, this.padding, marker);
       }
 
       throw new Error(

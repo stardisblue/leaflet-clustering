@@ -79,10 +79,9 @@ export class ClusterizableCircleLeaf
   constructor(
     x: number,
     y: number,
-    r: number,
     padding: number,
     readonly data: CircleMarker
   ) {
-    super(x, y, r, padding);
+    super(x, y, data.getRadius(), padding);
   }
 }
