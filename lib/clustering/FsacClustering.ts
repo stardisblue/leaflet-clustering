@@ -1,126 +1,120 @@
 import { scaleSqrt } from 'd3-scale';
-import { CircleMarker, LatLng, Point } from 'leaflet';
+import { CircleMarker, LatLng, Marker, Point } from 'leaflet';
+import { flatten } from '../binary-tree-traversal';
 import { CircleClusterMarker } from '../CircleClusterMarker';
 import { Fsac } from '../fsac';
-import type { Clustering } from './model';
+import type { Clustering, SupportedMarker } from './model';
+import { CircleCluster, CircleLeaf, RectangleLeaf } from './overlap';
 
-type Circle = {
-  x: number;
-  y: number;
-  r: number;
-  n: number;
+type FsacClusteringOptions = {
+  padding?: number;
+  scale?: (weight: number) => number;
+  weight?: (marker: SupportedMarker) => number;
+  baseRadius?: number;
 };
-
-type Leaf<D = any> = {
-  data: D;
-};
-
-type Node<D = any> = {
-  children: (Node<D> | Leaf<D>)[];
-};
-
-interface Scaler {
-  (value: number): number;
-  invert(value: number): number;
-}
-
-type FsacClusteringOptions = { padding?: number; getRadius?: Scaler };
 
 export class FsacClustering implements Clustering {
-  private _fsac: Fsac<Circle & (Leaf<CircleMarker> | Node<CircleMarker>)>;
-  private _getRadius: Scaler;
+  private fsac: Fsac<CircleLeaf | RectangleLeaf | CircleCluster>;
+  private getWeight: any;
+  private padding: number;
 
   constructor({
     padding = 0,
-    getRadius = scaleSqrt(),
+    scale = scaleSqrt(),
+    weight = () => 1,
+    baseRadius: baseSize = 10,
   }: FsacClusteringOptions = {}) {
-    this._getRadius = getRadius;
-
+    this.getWeight = weight;
+    this.padding = padding;
     // there is only 2 kinds of Markers
     //- CircleMarkers: props: x, y, r
     //- Markers: icon bbox. The default icon has all the necessary information to generate an accurate collision model
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
     //    and should only be used for CircleClusterMarker representations
-
-    this._fsac = new Fsac({
-      bbox(circle) {
-        return {
-          minX: circle.x - circle.r - padding,
-          minY: circle.y - circle.r - padding,
-          maxX: circle.x + circle.r + padding,
-          maxY: circle.y + circle.r + padding,
-        };
+    this.fsac = new Fsac({
+      bbox(item) {
+        return item.toPaddedBBox();
       },
       compareMinX(a, b) {
-        return a.x - a.r - (b.x - b.r);
+        return a.minX - b.minX;
       },
       compareMinY(a, b) {
-        return a.y - a.r - (b.y - b.r);
+        return a.minY - b.minY;
       },
       overlap(a, b) {
-        return (
-          (a.r + b.r + padding) ** 2 - ((a.x - b.x) ** 2 + (a.y - b.y) ** 2)
-        );
+        return a.overlaps(b);
       },
       merge(a, b) {
-        const xs = a.x * a.n + b.x * b.n,
-          ys = a.y * a.n + b.y * b.n,
-          n = a.n + b.n;
-
-        return {
-          x: xs / n,
-          y: ys / n,
-          r: getRadius(n),
-          n,
-          children: [a, b],
-        };
+        const w = a.w + b.w;
+        const x = (a.x * a.w + b.x * b.w) / w;
+        const y = (a.y * a.w + b.y * b.w) / w;
+        const r = scale(w) + baseSize;
+        return new CircleCluster(x, y, r, w, padding, a, b);
       },
     });
   }
 
   clusterize(
-    markers: CircleMarker[],
+    markers: SupportedMarker[],
     project: (layer: LatLng) => Point,
     unproject: (point: { x: number; y: number }) => LatLng
-  ): CircleClusterMarker[] {
-    const circles = markers.map((data) => {
-      const { x, y } = project(data.getLatLng());
-      const r = data.getRadius();
-      return {
-        x,
-        y,
-        r,
-        n: this._getRadius.invert(r),
-        data,
-      };
-    });
+  ): (CircleClusterMarker | SupportedMarker)[] {
+    const leafs = markers.map(this.createLeaf(project));
 
-    const clusters = this._fsac.clusterize(circles);
+    const clusters = this.fsac.clusterize(leafs);
 
-    return clusters.map(
-      (c) =>
-        new CircleClusterMarker(unproject(c), flatten(c), {
+    return clusters.map((c) => {
+      if (c instanceof CircleCluster)
+        return new CircleClusterMarker(unproject(c), flatten(c), {
           radius: c.r,
-        })
-    );
-  }
-}
+        });
 
-function flatten<T>(cluster: Node<T> | Leaf<T>) {
-  function loop(acc: T[], stack: (Node<T> | Leaf<T>)[]) {
-    if (stack.length === 0) return acc;
-
-    const head = stack.shift()!;
-
-    if (isLeaf(head)) acc.push(head.data);
-    else stack.push.apply(stack, head.children);
-
-    return loop(acc, stack);
+      return c.data;
+    });
   }
 
-  return loop([], [cluster]);
-}
+  createLeaf(project: (layer: LatLng) => Point) {
+    return (marker: SupportedMarker) => {
+      const { x, y } = project(marker.getLatLng());
+      if (marker instanceof CircleMarker) {
+        return new CircleLeaf(
+          x,
+          y,
+          marker.getRadius(),
+          this.getWeight(marker),
+          this.padding,
+          marker
+        );
+      } else if (marker instanceof Marker) {
+        const icon = marker.getIcon();
 
-function isLeaf(cluster: Node | Leaf): cluster is Leaf {
-  return (cluster as Leaf).data !== undefined;
+        if (
+          icon.options.iconSize === undefined ||
+          icon.options.iconAnchor === undefined
+        ) {
+          throw new Error('iconSize or iconAnchor is not defined');
+        }
+
+        const [xAnchor, yAnchor] = icon.options.iconAnchor as number[];
+        const minX = x - xAnchor;
+        const minY = y - yAnchor;
+        const [width, height] = icon.options.iconSize as number[];
+        return new RectangleLeaf(
+          x,
+          y,
+          minX,
+          minY,
+          minX + width,
+          minY + height,
+          this.getWeight(marker),
+          this.padding,
+          marker
+        );
+      }
+
+      throw new Error(
+        'this typeof marker is not supported, expected CirclerMarker or Marker '
+      );
+    };
+  }
 }
