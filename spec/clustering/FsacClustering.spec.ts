@@ -1,10 +1,20 @@
 import { describe, expect, test } from 'vitest';
-import { RectangleLeaf } from '../../lib/clustering/overlap';
+import { ClusterizableRectangleLeaf } from '../../lib/clustering/ClusterizableRectangleLeaf';
 import { marker } from 'leaflet';
 import { BBox } from 'rbush';
 
 const bbox = ({ minX, minY, maxX, maxY }: BBox) =>
-  new RectangleLeaf(0, 0, minX, minY, maxX, maxY, 0, 0, marker([0, 0]));
+  new ClusterizableRectangleLeaf(
+    0,
+    0,
+    minX,
+    minY,
+    maxX,
+    maxY,
+    0,
+    0,
+    marker([0, 0])
+  );
 
 describe('Rectangle Rectangle Overlap', () => {
   test.each([
@@ -30,7 +40,11 @@ describe('Rectangle Rectangle Overlap', () => {
     ],
   ])(
     'rectRectOverlap(%s, %s) -> %i',
-    (a: RectangleLeaf, b: RectangleLeaf, expected) => {
+    (
+      a: ClusterizableRectangleLeaf,
+      b: ClusterizableRectangleLeaf,
+      expected
+    ) => {
       expect(a.overlaps(b)).toBe(expected);
       expect(b.overlaps(a)).toBe(expected);
     }

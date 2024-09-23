@@ -1,26 +1,27 @@
-import { CircleMarker, LatLng, Util } from 'leaflet';
+import {
+  CircleMarker,
+  CircleMarkerOptions,
+  LatLng,
+  Marker,
+  Util,
+} from 'leaflet';
 
-export type CircleMarkerClusterOptions = {
+export type SupportedMarker = CircleMarker | Marker;
+
+export type CircleMarkerClusterOptions = CircleMarkerOptions & {
   radius: number;
-  weight?: (marker: CircleMarker) => number;
 };
 
 export interface CircleClusterMarker extends CircleMarker {
-  _layers: Record<number, CircleMarker>;
-  _weight: (marker: CircleMarker) => number;
+  _layers: Record<number, SupportedMarker>;
+
   new (
     latLng: LatLng,
-    layers: CircleMarker[],
+    layers: SupportedMarker[],
     options: CircleMarkerClusterOptions
   ): this;
-  getLayers(): CircleMarker[];
-  addLayers(layer: CircleMarker[]): this;
-  addLayer(layer: CircleMarker): this;
-  removeLayer(layer: CircleMarker): this;
-  hasLayer(layer: CircleMarker): boolean;
-  getLayerId(layer: CircleMarker): number;
-  _computeLatLng(): LatLng;
-  _computeRadius(): number;
+  getLayers(): SupportedMarker[];
+  getLayerId(layer: SupportedMarker): number;
 }
 
 export const CircleClusterMarker: CircleClusterMarker = CircleMarker.extend({
@@ -30,17 +31,12 @@ export const CircleClusterMarker: CircleClusterMarker = CircleMarker.extend({
   initialize(
     this: CircleClusterMarker,
     latLng: LatLng,
-    layers: CircleMarker[],
-    {
-      radius,
-      weight = (m) => m.getRadius(),
-      ...options
-    }: CircleMarkerClusterOptions
+    layers: SupportedMarker[],
+    { radius, ...options }: CircleMarkerClusterOptions
   ) {
     this._layers = Object.fromEntries(
       Array.from(layers, (l) => [this.getLayerId(l), l])
     );
-    this._weight = weight;
 
     (CircleMarker.prototype as any).initialize.call(this, latLng, {
       radius,
@@ -51,65 +47,6 @@ export const CircleClusterMarker: CircleClusterMarker = CircleMarker.extend({
   getLayers(this: CircleClusterMarker) {
     return Object.values(this._layers);
   },
-
-  // addLayers(this: CircleClusterMarker, layers: CircleMarker[]) {
-  //   for (const layer of layers) {
-  //     this._layers[this.getLayerId(layer)] = layer;
-  //   }
-
-  //   this.setRadius(this._computeRadius());
-  //   this.setLatLng(this._computeLatLng());
-
-  //   return this;
-  // },
-
-  // addLayer(this: CircleClusterMarker, layer: CircleMarker) {
-  //   this._layers[this.getLayerId(layer)] = layer;
-
-  //   this.setRadius(this._computeRadius());
-  //   this.setLatLng(this._computeLatLng());
-
-  //   return this;
-  // },
-
-  // removeLayer(this: CircleClusterMarker, layer: CircleMarker) {
-  //   delete this._layers[this.getLayerId(layer)];
-
-  //   this.setRadius(this._computeRadius());
-  //   this.setLatLng(this._computeLatLng());
-
-  //   return this;
-  // },
-
-  // hasLayer(this: CircleClusterMarker, layer: CircleMarker) {
-  //   return this.getLayerId(layer) in this._layers;
-  // },
-
-  // _computeLatLng(this: CircleClusterMarker) {
-  //   let weightedLat = 0;
-  //   let weightedLng = 0;
-  //   let totalWeight = 0;
-
-  //   for (let i in this._layers) {
-  //     if (this._layers.hasOwnProperty(i)) {
-  //       const layer = this._layers[i];
-
-  //       const latlng: LatLng = layer.getLatLng();
-  //       const w = this._weight(layer);
-  //       weightedLat += latlng.lat * w;
-  //       weightedLng += latlng.lng * w;
-  //       totalWeight += w;
-  //     }
-  //   }
-
-  //   return new LatLng(weightedLat / totalWeight, weightedLng / totalWeight);
-  // },
-
-  // _computeRadius(this: CircleClusterMarker) {
-  //   return Math.hypot(
-  //     ...this.getLayers().map((l: CircleMarker) => l.getRadius())
-  //   );
-  // },
 
   getLayerId(layer: CircleMarker) {
     return Util.stamp(layer);

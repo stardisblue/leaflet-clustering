@@ -1,10 +1,14 @@
 import { scaleSqrt } from 'd3-scale';
 import { CircleMarker, LatLng, Marker, Point } from 'leaflet';
 import { flatten } from '../binary-tree-traversal';
-import { CircleClusterMarker } from '../CircleClusterMarker';
+import { CircleClusterMarker, SupportedMarker } from '../CircleClusterMarker';
 import { Fsac } from '../fsac';
-import type { Clustering, SupportedMarker } from './model';
-import { CircleCluster, CircleLeaf, RectangleLeaf } from './overlap';
+import type { Clustering, ClusterizableLeaf, ClusterizablePair } from './model';
+import { ClusterizableRectangleLeaf } from './ClusterizableRectangleLeaf';
+import {
+  ClusterizableCircleCluster,
+  ClusterizableCircleLeaf,
+} from './ClusterizableCircle';
 
 type FsacClusteringOptions = {
   padding?: number;
@@ -14,7 +18,7 @@ type FsacClusteringOptions = {
 };
 
 export class FsacClustering implements Clustering {
-  private fsac: Fsac<CircleLeaf | RectangleLeaf | CircleCluster>;
+  private fsac: Fsac<ClusterizableLeaf | ClusterizablePair>;
   private getWeight: any;
   private padding: number;
 
@@ -27,8 +31,6 @@ export class FsacClustering implements Clustering {
     this.getWeight = weight;
     this.padding = padding;
     // there is only 2 kinds of Markers
-    //- CircleMarkers: props: x, y, r
-    //- Markers: icon bbox. The default icon has all the necessary information to generate an accurate collision model
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
     //    and should only be used for CircleClusterMarker representations
     this.fsac = new Fsac({
@@ -49,7 +51,7 @@ export class FsacClustering implements Clustering {
         const x = (a.x * a.w + b.x * b.w) / w;
         const y = (a.y * a.w + b.y * b.w) / w;
         const r = scale(w) + baseSize;
-        return new CircleCluster(x, y, r, w, padding, a, b);
+        return new ClusterizableCircleCluster(x, y, r, w, padding, a, b);
       },
     });
   }
@@ -64,12 +66,12 @@ export class FsacClustering implements Clustering {
     const clusters = this.fsac.clusterize(leafs);
 
     return clusters.map((c) => {
-      if (c instanceof CircleCluster)
+      if (c instanceof ClusterizableCircleCluster)
         return new CircleClusterMarker(unproject(c), flatten(c), {
           radius: c.r,
         });
 
-      return c.data;
+      return (c as ClusterizableLeaf).data;
     });
   }
 
@@ -77,7 +79,7 @@ export class FsacClustering implements Clustering {
     return (marker: SupportedMarker) => {
       const { x, y } = project(marker.getLatLng());
       if (marker instanceof CircleMarker) {
-        return new CircleLeaf(
+        return new ClusterizableCircleLeaf(
           x,
           y,
           marker.getRadius(),
@@ -99,7 +101,7 @@ export class FsacClustering implements Clustering {
         const minX = x - xAnchor;
         const minY = y - yAnchor;
         const [width, height] = icon.options.iconSize as number[];
-        return new RectangleLeaf(
+        return new ClusterizableRectangleLeaf(
           x,
           y,
           minX,
@@ -113,7 +115,7 @@ export class FsacClustering implements Clustering {
       }
 
       throw new Error(
-        'this typeof marker is not supported, expected CirclerMarker or Marker '
+        'this type of marker is not supported, expected CirclerMarker or Marker'
       );
     };
   }

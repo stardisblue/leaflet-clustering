@@ -1,7 +1,7 @@
 import { FeatureGroup, LeafletEvent, Map } from 'leaflet';
-import { CircleClusterMarker } from './CircleClusterMarker';
+import { CircleClusterMarker, SupportedMarker } from './CircleClusterMarker';
 import { FsacClustering } from './clustering/FsacClustering';
-import { Clustering, SupportedMarker } from './clustering/model';
+import { Clustering } from './clustering/model';
 
 type ClusterMarkerGroupOptions = {
   method?: Clustering;
