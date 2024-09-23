@@ -8,25 +8,40 @@ import {
   ClusterizableCircleLeaf,
 } from './ClusterizableCircle';
 import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
-import type { Clustering, ClusterizableLeaf } from './model';
+import type { Clustering, ClusterizableLeaf, ClusterizablePair } from './model';
 
-export type FsacClusteringOptions = Omit<
-  ClusterizableCircleClusterOptions,
-  'padding'
-> & { padding?: number };
+export type FsacClusteringOptions<O, P extends ClusterizablePair> = {
+  padding?: number;
+  Clusterer?: {
+    new (
+      left: P | ClusterizableLeaf,
+      right: P | ClusterizableLeaf,
+      options: O
+    ): P;
+  };
+} & O;
 
 export type FsacClusterizeOptions = {
   project: (layer: LatLng) => Point;
   unproject: (point: { x: number; y: number }) => LatLng;
 };
 
-export class FsacClustering implements Clustering<FsacClusterizeOptions> {
-  private fsac: Fsac<ClusterizableCircleCluster | ClusterizableLeaf>;
+export class FsacClustering<
+  O extends object = ClusterizableCircleClusterOptions,
+  P extends ClusterizablePair = ClusterizableCircleCluster,
+> implements Clustering<FsacClusterizeOptions>
+{
+  private fsac: Fsac<P | ClusterizableLeaf>;
   private padding: number;
 
-  constructor(options: FsacClusteringOptions = {}) {
-    options.padding ??= 0;
-    this.padding = options.padding;
+  constructor(
+    {
+      Clusterer = ClusterizableCircleCluster as any,
+      ...options
+    }: FsacClusteringOptions<O, P> = {} as any
+  ) {
+    (options as any).padding ??= 0;
+    this.padding = options.padding as any;
 
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
     //    and should only be used for CircleClusterMarker representations
@@ -35,7 +50,7 @@ export class FsacClustering implements Clustering<FsacClusterizeOptions> {
       compareMinX: (a, b) => a.minX - b.minX,
       compareMinY: (a, b) => a.minY - b.minY,
       overlap: (a, b) => a.overlaps(b),
-      merge: (a, b) => new ClusterizableCircleCluster(a, b, options as any),
+      merge: (a, b) => new Clusterer(a, b, options as any),
     });
   }
 

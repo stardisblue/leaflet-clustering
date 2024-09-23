@@ -1,80 +1,92 @@
 import { FeatureGroup, LeafletEvent, Map } from 'leaflet';
 import { CircleClusterMarker, SupportedMarker } from './CircleClusterMarker';
-import { FsacClustering } from './clustering/FsacClustering';
-import { Clustering } from './clustering/model';
+import {
+  ClusterizableCircleCluster,
+  ClusterizableCircleClusterOptions,
+} from './clustering/ClusterizableCircle';
+import {
+  FsacClustering,
+  FsacClusteringOptions,
+} from './clustering/FsacClustering';
+import { ClusterizablePair } from './clustering/model';
 
-type ClusterMarkerGroupOptions<C extends Clustering<any> = FsacClustering> = {
-  method?: C;
-  padding?: number;
-  baseRadius?: number;
-};
+interface ClusterFeatureGroupCtor {
+  new <
+    O extends object = ClusterizableCircleClusterOptions,
+    P extends ClusterizablePair = ClusterizableCircleCluster,
+  >(
+    clusters: SupportedMarker[],
+    options?: FsacClusteringOptions<O, P>
+  ): ClusterFeatureGroup<O, P>;
+}
 
-interface ClusterFeatureGroup<C extends Clustering<any> = FsacClustering>
-  extends FeatureGroup {
-  _clusterer: C;
+interface ClusterFeatureGroup<
+  O extends object = ClusterizableCircleClusterOptions,
+  P extends ClusterizablePair = ClusterizableCircleCluster,
+> extends FeatureGroup {
+  _clusterer: FsacClustering<O, P>;
   _markers: SupportedMarker[];
   _moveEnd(e: LeafletEvent): void;
   _zoomEnd(e: LeafletEvent): void;
   _zoom: number;
-  new (clusters: SupportedMarker[], options?: ClusterMarkerGroupOptions): this;
   getLayers(): CircleClusterMarker[];
   clusterize(): this;
 }
 
-export const ClusterFeatureGroup: ClusterFeatureGroup = FeatureGroup.extend({
-  initialize(
-    this: ClusterFeatureGroup,
-    layers: SupportedMarker[],
-    {
-      method,
-      padding = 4,
-      baseRadius = 10,
-      ...options
-    }: ClusterMarkerGroupOptions = {}
-  ) {
-    this._markers = layers;
-    this._clusterer = method ?? new FsacClustering({ padding, baseRadius });
+export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
+  {
+    initialize(
+      this: ClusterFeatureGroup,
+      layers: SupportedMarker[],
+      options: FsacClusteringOptions<
+        Omit<ClusterizableCircleClusterOptions, 'padding'>,
+        ClusterizableCircleCluster
+      > = {}
+    ) {
+      this._markers = layers;
+      this._clusterer = new FsacClustering(options);
 
-    (FeatureGroup.prototype as any).initialize.call(this, [], options);
-  },
+      (FeatureGroup.prototype as any).initialize.call(this, [], options);
+    },
 
-  onAdd(this: ClusterFeatureGroup, map: Map) {
-    FeatureGroup.prototype.onAdd.call(this, map);
+    onAdd(this: ClusterFeatureGroup, map: Map) {
+      FeatureGroup.prototype.onAdd.call(this, map);
 
-    this._zoom = Math.floor(this._map.getZoom());
+      this._zoom = Math.floor(this._map.getZoom());
 
-    this._map.on('zoomend', this._zoomEnd, this);
-    this._map.on('moveend', this._moveEnd, this);
-    this.clusterize();
-  },
+      this._map.on('zoomend', this._zoomEnd, this);
+      this._map.on('moveend', this._moveEnd, this);
+      this.clusterize();
+    },
 
-  onRemove(this: ClusterFeatureGroup, map: Map) {
-    this._map.off('zoomend', this._zoomEnd, this);
-    this._map.off('moveend', this._moveEnd, this);
+    onRemove(this: ClusterFeatureGroup, map: Map) {
+      this._map.off('zoomend', this._zoomEnd, this);
+      this._map.off('moveend', this._moveEnd, this);
 
-    this.clearLayers();
-    FeatureGroup.prototype.onRemove.call(this, map);
-  },
+      this.clearLayers();
+      FeatureGroup.prototype.onRemove.call(this, map);
+    },
 
-  _zoomEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {
-    if (!this._map) {
-      return;
-    }
+    _zoomEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {
+      if (!this._map) {
+        return;
+      }
 
-    this._zoom = Math.floor(this._map.getZoom());
+      this._zoom = Math.floor(this._map.getZoom());
 
-    this.clusterize();
-  },
+      this.clusterize();
+    },
 
-  _moveEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {},
+    _moveEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {},
 
-  clusterize(this: ClusterFeatureGroup) {
-    const layers = this._clusterer.clusterize(this._markers, {
-      project: (latlng) => this._map.project(latlng, this._zoom),
-      unproject: (point) => this._map.unproject(point as any, this._zoom),
-    });
+    clusterize(this: ClusterFeatureGroup) {
+      const layers = this._clusterer.clusterize(this._markers, {
+        project: (latlng) => this._map.project(latlng, this._zoom),
+        unproject: (point) => this._map.unproject(point as any, this._zoom),
+      });
 
-    this.clearLayers();
-    layers.map((l) => this.addLayer(l));
-  },
-}) as any;
+      this.clearLayers();
+      layers.map((l) => this.addLayer(l));
+    },
+  }
+) as any;
