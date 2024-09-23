@@ -1,6 +1,6 @@
 import { clamp } from './clamp';
 import { ClusterizableCircle } from './ClusterizableCircle';
-import { ClusterizableRectangleLeaf } from './ClusterizableRectangleLeaf';
+import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
 
 /**
  * Returns positive number of a and b overlap

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { ClusterizableRectangleLeaf } from '../../lib/clustering/ClusterizableRectangleLeaf';
+import { ClusterizableRectangleLeaf } from '../../lib/clustering/ClusterizableRectangle';
 import { marker } from 'leaflet';
 import { BBox } from 'rbush';
 

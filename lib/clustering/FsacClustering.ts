@@ -3,12 +3,12 @@ import { CircleMarker, LatLng, Marker, Point } from 'leaflet';
 import { flatten } from '../binary-tree-traversal';
 import { CircleClusterMarker, SupportedMarker } from '../CircleClusterMarker';
 import { Fsac } from '../fsac';
-import type { Clustering, ClusterizableLeaf, ClusterizablePair } from './model';
-import { ClusterizableRectangleLeaf } from './ClusterizableRectangleLeaf';
 import {
   ClusterizableCircleCluster,
   ClusterizableCircleLeaf,
 } from './ClusterizableCircle';
+import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
+import type { Clustering, ClusterizableLeaf, ClusterizablePair } from './model';
 
 type FsacClusteringOptions = {
   padding?: number;
