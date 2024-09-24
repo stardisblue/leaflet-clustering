@@ -1,6 +1,6 @@
 import { clamp } from './clamp';
 import { ClusterizableCircle } from './ClusterizableCircle';
-import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
+import { ClusterizableRectangle } from './ClusterizableRectangle';
 
 /**
  * Returns positive number of a and b overlap
@@ -8,8 +8,8 @@ import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
  * The value corresponds to the area of the overlapping rectangle. Does not take in account rotations
  */
 export function rectRectOverlap(
-  a: ClusterizableRectangleLeaf,
-  b: ClusterizableRectangleLeaf
+  a: ClusterizableRectangle,
+  b: ClusterizableRectangle
 ) {
   const padded = b.toPaddedBBox();
   const overlapX =
@@ -45,7 +45,7 @@ export function circleCircleOverlap(
  * The value corresponds to the overlapping distance squared
  */
 export function rectCircleOverlap(
-  a: ClusterizableRectangleLeaf,
+  a: ClusterizableRectangle,
   b: ClusterizableCircle
 ) {
   const bbox = a.toPaddedBBox();

@@ -1,19 +1,85 @@
 import { Marker } from 'leaflet';
 import { BBox } from 'rbush';
 import { ClusterizableCircle } from './ClusterizableCircle';
-import { Clusterizable, ClusterizableLeaf } from './model';
+import { Clusterizable, ClusterizableLeaf, ClusterizablePair } from './model';
 import { rectCircleOverlap, rectRectOverlap } from './overlap';
 
-export class ClusterizableRectangleLeaf implements ClusterizableLeaf<Marker> {
-  readonly minX: number;
-  readonly minY: number;
-  readonly maxX: number;
-  readonly maxY: number;
-
+export abstract class ClusterizableRectangle implements Clusterizable {
   constructor(
     readonly x: number,
     readonly y: number,
-    private readonly padding: number,
+    readonly minX: number,
+    readonly minY: number,
+    readonly maxX: number,
+    readonly maxY: number,
+    private readonly padding: number
+  ) {}
+  toPaddedBBox(): BBox {
+    return {
+      minX: this.minX - this.padding,
+      minY: this.minY - this.padding,
+      maxX: this.maxX + this.padding,
+      maxY: this.maxY + this.padding,
+    };
+  }
+  overlaps<T extends Clusterizable = Clusterizable>(other: T): number {
+    if (other instanceof ClusterizableRectangle) {
+      return rectRectOverlap(this, other);
+    } else if (other instanceof ClusterizableCircle) {
+      return rectCircleOverlap(this, other);
+    }
+
+    return other.overlaps(this);
+  }
+}
+
+export type ClusterizableSquareClusterOptions = {
+  padding: number;
+  scale?: (weight: number) => number;
+  weight?: <T>(leaf: ClusterizablePair | ClusterizableLeaf<T>) => number;
+  baseWidth?: number;
+};
+
+export class ClusterizableSquareCluster
+  extends ClusterizableRectangle
+  implements ClusterizablePair
+{
+  readonly w: number;
+
+  constructor(
+    readonly left: ClusterizableSquareCluster | ClusterizableLeaf,
+    readonly right: ClusterizableSquareCluster | ClusterizableLeaf,
+    {
+      padding,
+      scale = Math.sqrt,
+      weight = () => 1,
+      baseWidth = 10,
+    }: ClusterizableSquareClusterOptions
+  ) {
+    const leftW =
+      left instanceof ClusterizableSquareCluster ? left.w : weight(left);
+    const rightW =
+      right instanceof ClusterizableSquareCluster ? right.w : weight(right);
+
+    const w = leftW + rightW;
+    const x = (left.x * leftW + right.x * rightW) / w;
+    const y = (left.y * leftW + right.y * rightW) / w;
+
+    const r = scale(w) + baseWidth;
+
+    super(x, y, x - r, y - r, x + r, y + r, padding);
+    this.w = w;
+  }
+}
+
+export class ClusterizableRectangleLeaf
+  extends ClusterizableRectangle
+  implements ClusterizableLeaf<Marker>
+{
+  constructor(
+    x: number,
+    y: number,
+    padding: number,
     readonly data: Marker
   ) {
     const icon = data.getIcon();
@@ -28,28 +94,11 @@ export class ClusterizableRectangleLeaf implements ClusterizableLeaf<Marker> {
     const [xAnchor, yAnchor] = icon.options.iconAnchor as number[];
     const [width, height] = icon.options.iconSize as number[];
 
-    this.minX = x - xAnchor;
-    this.minY = y - yAnchor;
-    this.maxX = this.minX + width;
-    this.maxY = this.minY + height;
-  }
+    const minX = x - xAnchor;
+    const minY = y - yAnchor;
+    const maxX = minX + width;
+    const maxY = minY + height;
 
-  toPaddedBBox(): BBox {
-    return {
-      minX: this.minX - this.padding,
-      minY: this.minY - this.padding,
-      maxX: this.maxX + this.padding,
-      maxY: this.maxY + this.padding,
-    };
-  }
-
-  overlaps(other: Clusterizable): number {
-    if (other instanceof ClusterizableRectangleLeaf) {
-      return rectRectOverlap(this, other);
-    } else if (other instanceof ClusterizableCircle) {
-      return rectCircleOverlap(this, other);
-    }
-
-    return other.overlaps(this);
+    super(x, y, minX, minY, maxX, maxY, padding);
   }
 }
