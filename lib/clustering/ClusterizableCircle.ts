@@ -2,7 +2,6 @@ import { CircleMarker } from 'leaflet';
 import { BBox } from 'rbush';
 import { Clusterizable, ClusterizableLeaf, ClusterizablePair } from './model';
 import { circleCircleOverlap } from './overlap';
-import { scaleSqrt } from 'd3';
 
 export abstract class ClusterizableCircle implements Clusterizable {
   constructor(
@@ -52,7 +51,7 @@ export class ClusterizableCircleCluster
     readonly right: ClusterizableCircleCluster | ClusterizableLeaf,
     {
       padding,
-      scale = scaleSqrt(),
+      scale = Math.sqrt,
       weight = () => 1,
       baseRadius = 10,
     }: ClusterizableCircleClusterOptions
