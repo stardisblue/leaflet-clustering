@@ -5,18 +5,18 @@ import {
   Marker,
   Util,
 } from 'leaflet';
+import { ClusterizableCircle } from './clustering/ClusterizableCircle';
 
 export type SupportedMarker = CircleMarker | Marker;
 
-export type CircleClusterMarkerOptions = CircleMarkerOptions & {
-  radius: number;
-};
+export type CircleClusterMarkerOptions = Omit<CircleMarkerOptions, 'radius'>;
 
 export interface CircleClusterMarker extends CircleMarker {
   _layers: Record<number, SupportedMarker>;
   new (
     latLng: LatLng,
     layers: SupportedMarker[],
+    clusterizable: ClusterizableCircle,
     options: CircleClusterMarkerOptions
   ): CircleClusterMarker;
   getLayers(): SupportedMarker[];
@@ -31,15 +31,16 @@ export const CircleClusterMarker: CircleClusterMarker = CircleMarker.extend({
     this: CircleClusterMarker,
     latLng: LatLng,
     layers: SupportedMarker[],
-    { radius, ...options }: CircleClusterMarkerOptions
+    { radius }: ClusterizableCircle,
+    options: CircleClusterMarkerOptions
   ) {
     this._layers = Object.fromEntries(
       Array.from(layers, (l) => [this.getLayerId(l), l])
     );
 
     (CircleMarker.prototype as any).initialize.call(this, latLng, {
-      radius,
       ...options,
+      radius,
     });
   },
 
@@ -47,7 +48,7 @@ export const CircleClusterMarker: CircleClusterMarker = CircleMarker.extend({
     return Object.values(this._layers);
   },
 
-  getLayerId(layer: CircleMarker) {
+  getLayerId(layer: SupportedMarker) {
     return Util.stamp(layer);
   },
 }) as any;

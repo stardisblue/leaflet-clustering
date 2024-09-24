@@ -1,5 +1,9 @@
 import { FeatureGroup, LeafletEvent, Map } from 'leaflet';
-import { CircleClusterMarker, SupportedMarker } from './CircleClusterMarker';
+import {
+  CircleClusterMarker,
+  CircleClusterMarkerOptions,
+  SupportedMarker,
+} from './CircleClusterMarker';
 import {
   ClusterizableCircleCluster,
   ClusterizableCircleClusterOptions,
@@ -12,19 +16,23 @@ import { ClusterizablePair } from './clustering/model';
 
 interface ClusterFeatureGroupCtor {
   new <
-    O extends object = ClusterizableCircleClusterOptions,
     P extends ClusterizablePair = ClusterizableCircleCluster,
+    OP = ClusterizableCircleClusterOptions,
+    M extends SupportedMarker = CircleClusterMarker,
+    OM = CircleClusterMarkerOptions,
   >(
     clusters: SupportedMarker[],
-    options?: FsacClusteringOptions<O, P>
-  ): ClusterFeatureGroup<O, P>;
+    options?: FsacClusteringOptions<P, OP, M, OM>
+  ): ClusterFeatureGroup<P, OP, M, OM>;
 }
 
 interface ClusterFeatureGroup<
-  O extends object = ClusterizableCircleClusterOptions,
   P extends ClusterizablePair = ClusterizableCircleCluster,
+  OP = ClusterizableCircleClusterOptions,
+  M extends SupportedMarker = CircleClusterMarker,
+  OM = CircleClusterMarkerOptions,
 > extends FeatureGroup {
-  _clusterer: FsacClustering<O, P>;
+  _clusterer: FsacClustering<P, OP, M, OM>;
   _markers: SupportedMarker[];
   _moveEnd(e: LeafletEvent): void;
   _zoomEnd(e: LeafletEvent): void;
@@ -39,8 +47,10 @@ export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
       this: ClusterFeatureGroup,
       layers: SupportedMarker[],
       options: FsacClusteringOptions<
-        Omit<ClusterizableCircleClusterOptions, 'padding'>,
-        ClusterizableCircleCluster
+        ClusterizableCircleCluster,
+        ClusterizableCircleClusterOptions,
+        CircleClusterMarker,
+        CircleClusterMarkerOptions
       > = {}
     ) {
       this._markers = layers;

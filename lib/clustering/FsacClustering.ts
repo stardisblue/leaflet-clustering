@@ -1,6 +1,10 @@
 import { CircleMarker, LatLng, Marker, Point } from 'leaflet';
 import { flatten } from '../binary-tree-traversal';
-import { CircleClusterMarker, SupportedMarker } from '../CircleClusterMarker';
+import {
+  CircleClusterMarker,
+  CircleClusterMarkerOptions,
+  SupportedMarker,
+} from '../CircleClusterMarker';
 import { Fsac } from '../fsac';
 import {
   ClusterizableCircleCluster,
@@ -11,21 +15,28 @@ import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
 import type { Clustering, ClusterizableLeaf, ClusterizablePair } from './model';
 
 export type FsacClusteringOptions<
-  O,
   P extends ClusterizablePair,
-  M extends CircleMarker | Marker = CircleClusterMarker,
+  OP,
+  M extends SupportedMarker,
+  OM,
 > = {
   padding?: number;
   Clusterizer?: P &
     (new (
       left: P | ClusterizableLeaf,
       right: P | ClusterizableLeaf,
-      options: O
+      options: OP
     ) => P);
-
+  clusterizerOptions?: Omit<OP, 'padding'>;
   ClusterMarker?: M &
-    (new (latLng: LatLng, layers: SupportedMarker[], clusterizable: P) => M);
-} & O;
+    (new (
+      latLng: LatLng,
+      layers: SupportedMarker[],
+      clusterizable: P,
+      options?: OM
+    ) => M);
+  clusterMarkerOptions?: OM;
+};
 
 export type FsacClusterizeOptions = {
   project: (layer: LatLng) => Point;
@@ -33,31 +44,40 @@ export type FsacClusterizeOptions = {
 };
 
 export class FsacClustering<
-  O extends object = ClusterizableCircleClusterOptions,
   P extends ClusterizablePair = ClusterizableCircleCluster,
+  OP = ClusterizableCircleClusterOptions,
   M extends CircleMarker | Marker = CircleClusterMarker,
+  OM = CircleClusterMarkerOptions,
 > implements Clustering<FsacClusterizeOptions, M>
 {
   private fsac: Fsac<P | ClusterizableLeaf>;
   private padding: number;
   private ClusterMarker: M &
-    (new (latLng: LatLng, layers: SupportedMarker[], clusterizable: P) => M);
+    (new (
+      latLng: LatLng,
+      layers: SupportedMarker[],
+      clusterizable: P,
+      options?: OM
+    ) => M);
   private Clusterizer: P &
     (new (
       left: ClusterizableLeaf<any> | P,
       right: ClusterizableLeaf<any> | P,
-      options: O
+      options: OP
     ) => P);
+  options: Omit<
+    FsacClusteringOptions<P, OP, M, OM>,
+    'Clusterizer' | 'ClusterMarker'
+  >;
 
-  constructor(
-    {
-      Clusterizer = ClusterizableCircleCluster as any,
-      ClusterMarker = CircleClusterMarker as any,
-      ...options
-    }: FsacClusteringOptions<O, P, M> = {} as any
-  ) {
-    (options as any).padding ??= 4;
-    this.padding = options.padding!;
+  constructor({
+    Clusterizer = ClusterizableCircleCluster as any,
+    ClusterMarker = CircleClusterMarker as any,
+    ...options
+  }: FsacClusteringOptions<P, OP, M, OM> = {}) {
+    options.padding ??= 4;
+    this.padding = options.padding;
+    this.options = options;
     this.Clusterizer = Clusterizer;
     this.ClusterMarker = ClusterMarker;
 
@@ -68,7 +88,17 @@ export class FsacClustering<
       compareMinX: (a, b) => a.minX - b.minX,
       compareMinY: (a, b) => a.minY - b.minY,
       overlap: (a, b) => a.overlaps(b),
-      merge: (a, b) => new Clusterizer(a, b, options as any),
+      merge: (a, b) =>
+        new Clusterizer(
+          a,
+          b,
+          options.clusterizerOptions
+            ? {
+                ...options.clusterizerOptions,
+                padding: this.padding,
+              }
+            : ({ padding: this.padding } as any)
+        ),
     });
   }
 
@@ -82,9 +112,13 @@ export class FsacClustering<
 
     return clusters.map((c) => {
       if (c instanceof this.Clusterizer)
-        // TODO: I think this should be moved farther up (to ClusterFeatureGroup) the instanceof is bound to ClusterizableCircleCluster but the clusterer could be different
-        // I also think that it might be useful to be able to pass options tào the ClusterMarker when it's created...
-        return new this.ClusterMarker(unproject(c), flatten(c), c);
+        // TODO: I think this should be moved farther up (to ClusterFeatureGroup)
+        return new this.ClusterMarker(
+          unproject(c),
+          flatten(c),
+          c,
+          this.options.clusterMarkerOptions
+        );
 
       return (c as ClusterizableLeaf).data;
     });
