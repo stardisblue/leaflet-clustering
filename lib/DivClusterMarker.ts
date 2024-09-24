@@ -40,7 +40,10 @@ export const RoundDivClusterMarker: RoundDivClusterMarker = Marker.extend({
     );
     const iconOptions = icon
       ? icon(layers, clusterizable)
-      : { html: '<div>' + layers.length + '</div>' };
+      : {
+          html: '' + layers.length,
+          className: 'leaflet-clustering-marker',
+        };
 
     (Marker.prototype as any).initialize.call(this, latLng, {
       icon: divIcon({

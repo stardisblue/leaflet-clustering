@@ -1,0 +1,8 @@
+.leaflet-marker-icon.leaflet-clustering-marker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: rgba(240, 194, 12, 1);
+}
