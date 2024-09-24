@@ -16,8 +16,8 @@ export interface CircleClusterMarker extends CircleMarker {
   new (
     latLng: LatLng,
     layers: SupportedMarker[],
-    clusterizable: ClusterizableCircle,
-    options: CircleClusterMarkerOptions
+    clusterizable: Pick<ClusterizableCircle, 'radius'>,
+    options?: CircleClusterMarkerOptions
   ): CircleClusterMarker;
   getLayers(): SupportedMarker[];
   getLayerId(layer: SupportedMarker): number;
@@ -31,8 +31,8 @@ export const CircleClusterMarker: CircleClusterMarker = CircleMarker.extend({
     this: CircleClusterMarker,
     latLng: LatLng,
     layers: SupportedMarker[],
-    { radius }: ClusterizableCircle,
-    options: CircleClusterMarkerOptions
+    { radius }: Pick<ClusterizableCircle, 'radius'>,
+    options: CircleClusterMarkerOptions = {}
   ) {
     this._layers = Object.fromEntries(
       Array.from(layers, (l) => [this.getLayerId(l), l])
