@@ -15,6 +15,7 @@ export type RoundDivClusterMarkerOptions = Omit<MarkerOptions, 'icon'> & {
     clusterizable: ClusterizableCircleCluster
   ) => Omit<DivIconOptions, 'icon' | 'iconSize' | 'iconAnchor'>;
 };
+
 export interface RoundDivClusterMarker extends Marker {
   _layers: Record<number, SupportedMarker>;
   new (
@@ -42,7 +43,7 @@ export const RoundDivClusterMarker: RoundDivClusterMarker = Marker.extend({
       ? icon(layers, clusterizable)
       : {
           html: '' + layers.length,
-          className: 'leaflet-clustering-marker',
+          className: 'leaflet-round-clustering-marker',
         };
 
     (Marker.prototype as any).initialize.call(this, latLng, {
