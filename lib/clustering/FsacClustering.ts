@@ -21,20 +21,18 @@ export type FsacClusteringOptions<
   OM,
 > = {
   padding?: number;
-  Clusterizer?: P &
-    (new (
-      left: P | ClusterizableLeaf,
-      right: P | ClusterizableLeaf,
-      options: OP
-    ) => P);
+  Clusterizer?: new (
+    left: P | ClusterizableLeaf,
+    right: P | ClusterizableLeaf,
+    options: OP
+  ) => P;
   clusterizerOptions?: Omit<OP, 'padding'>;
-  ClusterMarker?: M &
-    (new (
-      latLng: LatLng,
-      layers: SupportedMarker[],
-      clusterizable: P,
-      options?: OM
-    ) => M);
+  ClusterMarker?: new (
+    latLng: LatLng,
+    layers: SupportedMarker[],
+    clusterizable: P,
+    options?: OM
+  ) => M;
   clusterMarkerOptions?: OM;
 };
 
@@ -52,19 +50,17 @@ export class FsacClustering<
 {
   private fsac: Fsac<P | ClusterizableLeaf>;
   private padding: number;
-  private ClusterMarker: M &
-    (new (
-      latLng: LatLng,
-      layers: SupportedMarker[],
-      clusterizable: P,
-      options?: OM
-    ) => M);
-  private Clusterizer: P &
-    (new (
-      left: ClusterizableLeaf<any> | P,
-      right: ClusterizableLeaf<any> | P,
-      options: OP
-    ) => P);
+  private ClusterMarker: new (
+    latLng: LatLng,
+    layers: SupportedMarker[],
+    clusterizable: P,
+    options?: OM
+  ) => M;
+  private Clusterizer: new (
+    left: ClusterizableLeaf<any> | P,
+    right: ClusterizableLeaf<any> | P,
+    options: OP
+  ) => P;
   options: Omit<
     FsacClusteringOptions<P, OP, M, OM>,
     'Clusterizer' | 'ClusterMarker'
