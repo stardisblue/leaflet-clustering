@@ -14,6 +14,15 @@ import {
 } from './clustering/FsacClustering';
 import { ClusterizablePair } from './clustering/model';
 
+type ClusterFeatureGroupOptions<
+  P extends ClusterizablePair,
+  OP,
+  M extends SupportedMarker,
+  OM,
+> = FsacClusteringOptions<P, OP, M, OM> & {
+  restrictToVisibleBounds?: boolean;
+};
+
 interface ClusterFeatureGroupCtor {
   new <
     P extends ClusterizablePair = ClusterizableCircleCluster,
@@ -22,7 +31,7 @@ interface ClusterFeatureGroupCtor {
     OM = CircleClusterMarkerOptions,
   >(
     clusters: SupportedMarker[],
-    options?: FsacClusteringOptions<P, OP, M, OM>
+    options?: ClusterFeatureGroupOptions<P, OP, M, OM>
   ): ClusterFeatureGroup<P, OP, M, OM>;
 }
 
@@ -32,11 +41,13 @@ interface ClusterFeatureGroup<
   M extends SupportedMarker = CircleClusterMarker,
   OM = CircleClusterMarkerOptions,
 > extends FeatureGroup {
+  _restrictToVisibleBounds: boolean;
   _clusterer: FsacClustering<P, OP, M, OM>;
   _markers: SupportedMarker[];
   _moveEnd(e: LeafletEvent): void;
   _zoomEnd(e: LeafletEvent): void;
   _zoom: number;
+
   getLayers(): CircleClusterMarker[];
   clusterize(): this;
 }
@@ -46,13 +57,17 @@ export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
     initialize(
       this: ClusterFeatureGroup,
       layers: SupportedMarker[],
-      options: FsacClusteringOptions<
+      {
+        restrictToVisibleBounds = false,
+        ...options
+      }: ClusterFeatureGroupOptions<
         ClusterizableCircleCluster,
         ClusterizableCircleClusterOptions,
         CircleClusterMarker,
         CircleClusterMarkerOptions
       > = {}
     ) {
+      this._restrictToVisibleBounds = restrictToVisibleBounds;
       this._markers = layers;
       this._clusterer = new FsacClustering(options);
 
@@ -87,10 +102,22 @@ export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
       this.clusterize();
     },
 
-    _moveEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {},
+    _moveEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {
+      if (this._restrictToVisibleBounds) this.clusterize();
+    },
 
     clusterize(this: ClusterFeatureGroup) {
-      const layers = this._clusterer.clusterize(this._markers, {
+      let markers = this._markers;
+
+      if (this._restrictToVisibleBounds) {
+        const bounds = this._map.getBounds().pad(1);
+
+        markers = this._markers.filter((marker) =>
+          bounds.contains(marker.getLatLng())
+        );
+      }
+
+      const layers = this._clusterer.clusterize(markers, {
         project: (latlng) => this._map.project(latlng, this._zoom),
         unproject: (point) => this._map.unproject(point as any, this._zoom),
       });
