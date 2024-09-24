@@ -15,7 +15,7 @@ tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 const clusters = new ClusterFeatureGroup(
   glottolog.map((d) => (Math.random() > 0.5 ? circleMarker(d) : marker(d))),
-  { ClusterMarker: RoundDivClusterMarker }
+  { ClusterMarker: RoundDivClusterMarker, restrictToVisibleBounds: true }
 );
 
 clusters
