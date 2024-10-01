@@ -1,48 +1,24 @@
 import { FeatureGroup, LeafletEvent, Map } from 'leaflet';
-import {
-  CircleClusterMarker,
-  CircleClusterMarkerOptions,
-  SupportedMarker,
-} from './CircleClusterMarker';
-import {
-  ClusterizableCircleCluster,
-  ClusterizableCircleClusterOptions,
-} from './clustering/ClusterizableCircle';
-import {
-  FsacClustering,
-  FsacClusteringOptions,
-} from './clustering/FsacClustering';
-import { ClusterizablePair } from './clustering/model';
+import { CircleClusterMarker, SupportedMarker } from './CircleClusterMarker';
+import { FsacClustering } from './clustering/FsacClustering';
+import { Clustering, ClusteringCtor } from './clustering/model';
 
-type ClusterFeatureGroupOptions<
-  P extends ClusterizablePair,
-  OP,
-  M extends SupportedMarker,
-  OM,
-> = FsacClusteringOptions<P, OP, M, OM> & {
+type ClusterFeatureGroupOptions<Ctor extends ClusteringCtor<any, any>> = {
+  method?: Ctor;
   restrictToVisibleBounds?: boolean;
-};
+} & (Ctor extends ClusteringCtor<any, infer O> ? O : {});
 
 interface ClusterFeatureGroupCtor {
-  new <
-    P extends ClusterizablePair = ClusterizableCircleCluster,
-    OP = ClusterizableCircleClusterOptions,
-    M extends SupportedMarker = CircleClusterMarker,
-    OM = CircleClusterMarkerOptions,
-  >(
+  new <Ctor extends ClusteringCtor<any, any> = typeof FsacClustering>(
     clusters: SupportedMarker[],
-    options?: ClusterFeatureGroupOptions<P, OP, M, OM>
-  ): ClusterFeatureGroup<P, OP, M, OM>;
+    options?: ClusterFeatureGroupOptions<Ctor>
+  ): ClusterFeatureGroup<InstanceType<Ctor>>;
 }
 
-interface ClusterFeatureGroup<
-  P extends ClusterizablePair = ClusterizableCircleCluster,
-  OP = ClusterizableCircleClusterOptions,
-  M extends SupportedMarker = CircleClusterMarker,
-  OM = CircleClusterMarkerOptions,
-> extends FeatureGroup {
+interface ClusterFeatureGroup<C extends Clustering<any> = FsacClustering>
+  extends FeatureGroup {
   _restrictToVisibleBounds: boolean;
-  _clusterer: FsacClustering<P, OP, M, OM>;
+  _clusterer: C;
   _markers: SupportedMarker[];
   _moveEnd(e: LeafletEvent): void;
   _zoomEnd(e: LeafletEvent): void;
@@ -55,21 +31,17 @@ interface ClusterFeatureGroup<
 export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
   {
     initialize(
-      this: ClusterFeatureGroup,
+      this: ClusterFeatureGroup<FsacClustering>,
       layers: SupportedMarker[],
       {
         restrictToVisibleBounds = false,
+        method = FsacClustering,
         ...options
-      }: ClusterFeatureGroupOptions<
-        ClusterizableCircleCluster,
-        ClusterizableCircleClusterOptions,
-        CircleClusterMarker,
-        CircleClusterMarkerOptions
-      > = {}
+      }: ClusterFeatureGroupOptions<typeof FsacClustering> = {}
     ) {
       this._restrictToVisibleBounds = restrictToVisibleBounds;
       this._markers = layers;
-      this._clusterer = new FsacClustering(options);
+      this._clusterer = new method(options);
 
       (FeatureGroup.prototype as any).initialize.call(this, [], options);
     },
