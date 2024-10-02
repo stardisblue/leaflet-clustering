@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { ClusterizableRectangleLeaf } from '../../lib/clustering/ClusterizableRectangle';
+import { RectangleLeaf } from '../../lib/clustering/Rectangle';
 import { icon, marker } from 'leaflet';
 
 const rect = ({
@@ -13,7 +13,7 @@ const rect = ({
   width: number;
   height: number;
 }) =>
-  new ClusterizableRectangleLeaf(
+  new RectangleLeaf(
     x,
     y,
     0,
@@ -50,11 +50,7 @@ describe('Rectangle Rectangle Overlap', () => {
     ],
   ])(
     'rectRectOverlap(%s, %s) -> %i',
-    (
-      a: ClusterizableRectangleLeaf,
-      b: ClusterizableRectangleLeaf,
-      expected
-    ) => {
+    (a: RectangleLeaf, b: RectangleLeaf, expected) => {
       expect(a.overlaps(b)).toBe(expected);
       expect(b.overlaps(a)).toBe(expected);
     }

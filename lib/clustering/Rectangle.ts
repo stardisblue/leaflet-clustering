@@ -1,10 +1,10 @@
 import { Marker } from 'leaflet';
 import { BBox } from 'rbush';
-import { ClusterizableCircle } from './ClusterizableCircle';
-import { Clusterizable, ClusterizableLeaf, ClusterizablePair } from './model';
+import { Circle } from './Circle';
+import { SpatialCluster, SpatialLeaf, SpatialObject } from './model';
 import { rectCircleOverlap, rectRectOverlap } from './overlap';
 
-export abstract class ClusterizableRectangle implements Clusterizable {
+export abstract class Rectangle implements SpatialObject {
   constructor(
     readonly x: number,
     readonly y: number,
@@ -22,10 +22,10 @@ export abstract class ClusterizableRectangle implements Clusterizable {
       maxY: this.maxY + this.padding,
     };
   }
-  overlaps<T extends Clusterizable = Clusterizable>(other: T): number {
-    if (other instanceof ClusterizableRectangle) {
+  overlaps<T extends SpatialObject = SpatialObject>(other: T): number {
+    if (other instanceof Rectangle) {
       return rectRectOverlap(this, other);
-    } else if (other instanceof ClusterizableCircle) {
+    } else if (other instanceof Circle) {
       return rectCircleOverlap(this, other);
     }
 
@@ -33,33 +33,28 @@ export abstract class ClusterizableRectangle implements Clusterizable {
   }
 }
 
-export type ClusterizableSquareClusterOptions = {
+export type SquareClusterOptions = {
   padding: number;
   scale?: (weight: number) => number;
-  weight?: <T>(leaf: ClusterizablePair | ClusterizableLeaf<T>) => number;
+  weight?: <T>(leaf: SpatialCluster | SpatialLeaf<T>) => number;
   baseWidth?: number;
 };
 
-export class ClusterizableSquareCluster
-  extends ClusterizableRectangle
-  implements ClusterizablePair
-{
+export class SquareCluster extends Rectangle implements SpatialCluster {
   readonly w: number;
 
   constructor(
-    readonly left: ClusterizableSquareCluster | ClusterizableLeaf,
-    readonly right: ClusterizableSquareCluster | ClusterizableLeaf,
+    readonly left: SquareCluster | SpatialLeaf,
+    readonly right: SquareCluster | SpatialLeaf,
     {
       padding,
       scale = Math.sqrt,
       weight = () => 1,
       baseWidth = 10,
-    }: ClusterizableSquareClusterOptions
+    }: SquareClusterOptions
   ) {
-    const leftW =
-      left instanceof ClusterizableSquareCluster ? left.w : weight(left);
-    const rightW =
-      right instanceof ClusterizableSquareCluster ? right.w : weight(right);
+    const leftW = left instanceof SquareCluster ? left.w : weight(left);
+    const rightW = right instanceof SquareCluster ? right.w : weight(right);
 
     const w = leftW + rightW;
     const x = (left.x * leftW + right.x * rightW) / w;
@@ -72,10 +67,7 @@ export class ClusterizableSquareCluster
   }
 }
 
-export class ClusterizableRectangleLeaf
-  extends ClusterizableRectangle
-  implements ClusterizableLeaf<Marker>
-{
+export class RectangleLeaf extends Rectangle implements SpatialLeaf<Marker> {
   constructor(
     x: number,
     y: number,

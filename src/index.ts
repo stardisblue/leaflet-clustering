@@ -3,8 +3,8 @@ import '../lib/style.css';
 import { circleMarker, map, marker, tileLayer } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { ClusterFeatureGroup } from '../lib/ClusterFeatureGroup';
-import glottolog from './dataset/glottolog.json';
 import { RoundDivClusterMarker } from '../lib/RoundDivClusterMarker';
+import glottolog from './dataset/glottolog.json';
 
 const leafletMap = map('map').setView([48.9, 2.3], 6);
 

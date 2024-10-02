@@ -7,12 +7,12 @@ import {
   Util,
 } from 'leaflet';
 import { SupportedMarker } from './CircleClusterMarker';
-import { ClusterizableCircleCluster } from './clustering/ClusterizableCircle';
+import { CircleCluster } from './clustering/Circle';
 
 export type RoundDivClusterMarkerOptions = Omit<MarkerOptions, 'icon'> & {
   icon?: (
     layers: SupportedMarker[],
-    clusterizable: ClusterizableCircleCluster
+    cluster: CircleCluster
   ) => Omit<DivIconOptions, 'icon' | 'iconSize' | 'iconAnchor'>;
 };
 
@@ -21,7 +21,7 @@ export interface RoundDivClusterMarker extends Marker {
   new (
     latLng: LatLng,
     layers: SupportedMarker[],
-    clusterizable: ClusterizableCircleCluster,
+    cluster: CircleCluster,
     options?: RoundDivClusterMarkerOptions
   ): RoundDivClusterMarker;
   getLayers(): SupportedMarker[];
@@ -33,14 +33,14 @@ export const RoundDivClusterMarker: RoundDivClusterMarker = Marker.extend({
     this: RoundDivClusterMarker,
     latLng: LatLng,
     layers: SupportedMarker[],
-    clusterizable: ClusterizableCircleCluster,
+    cluster: CircleCluster,
     { icon, ...options }: RoundDivClusterMarkerOptions = {}
   ) {
     this._layers = Object.fromEntries(
       Array.from(layers, (l) => [this.getLayerId(l), l])
     );
     const iconOptions = icon
-      ? icon(layers, clusterizable)
+      ? icon(layers, cluster)
       : {
           html: '' + layers.length,
           className: 'leaflet-round-clustering-marker',
@@ -49,7 +49,7 @@ export const RoundDivClusterMarker: RoundDivClusterMarker = Marker.extend({
     (Marker.prototype as any).initialize.call(this, latLng, {
       icon: divIcon({
         ...iconOptions,
-        iconSize: [clusterizable.radius * 2, clusterizable.radius * 2],
+        iconSize: [cluster.radius * 2, cluster.radius * 2],
       }),
       ...options,
     });

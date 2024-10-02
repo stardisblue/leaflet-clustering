@@ -5,7 +5,7 @@ import {
   Marker,
   Util,
 } from 'leaflet';
-import { ClusterizableCircle } from './clustering/ClusterizableCircle';
+import { Circle } from './clustering/Circle';
 
 export type SupportedMarker = CircleMarker | Marker;
 
@@ -16,7 +16,7 @@ export interface CircleClusterMarker extends CircleMarker {
   new (
     latLng: LatLng,
     layers: SupportedMarker[],
-    clusterizable: Pick<ClusterizableCircle, 'radius'>,
+    cluster: Pick<Circle, 'radius'>,
     options?: CircleClusterMarkerOptions
   ): CircleClusterMarker;
   getLayers(): SupportedMarker[];
@@ -31,7 +31,7 @@ export const CircleClusterMarker: CircleClusterMarker = CircleMarker.extend({
     this: CircleClusterMarker,
     latLng: LatLng,
     layers: SupportedMarker[],
-    { radius }: Pick<ClusterizableCircle, 'radius'>,
+    { radius }: Pick<Circle, 'radius'>,
     options: CircleClusterMarkerOptions = {}
   ) {
     this._layers = Object.fromEntries(

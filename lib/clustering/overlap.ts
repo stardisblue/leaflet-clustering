@@ -1,16 +1,13 @@
 import { clamp } from './clamp';
-import { ClusterizableCircle } from './ClusterizableCircle';
-import { ClusterizableRectangle } from './ClusterizableRectangle';
+import { Circle } from './Circle';
+import { Rectangle } from './Rectangle';
 
 /**
  * Returns positive number of a and b overlap
  *
  * The value corresponds to the area of the overlapping rectangle. Does not take in account rotations
  */
-export function rectRectOverlap(
-  a: ClusterizableRectangle,
-  b: ClusterizableRectangle
-) {
+export function rectRectOverlap(a: Rectangle, b: Rectangle) {
   const padded = b.toPaddedBBox();
   const overlapX =
     Math.min(a.maxX, padded.maxX) - Math.max(a.minX, padded.minX);
@@ -30,8 +27,8 @@ export function rectRectOverlap(
  * The value corresponds to the overlapping distance squared
  */
 export function circleCircleOverlap(
-  a: ClusterizableCircle,
-  b: ClusterizableCircle,
+  a: Circle,
+  b: Circle,
   padding: number
 ): number {
   return (
@@ -44,10 +41,7 @@ export function circleCircleOverlap(
  *
  * The value corresponds to the overlapping distance squared
  */
-export function rectCircleOverlap(
-  a: ClusterizableRectangle,
-  b: ClusterizableCircle
-) {
+export function rectCircleOverlap(a: Rectangle, b: Circle) {
   const bbox = a.toPaddedBBox();
   const closestX = clamp(b.x, bbox.minX, bbox.maxX);
   const closestY = clamp(b.y, bbox.minY, bbox.maxY);

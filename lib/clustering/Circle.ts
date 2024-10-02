@@ -1,9 +1,9 @@
 import { CircleMarker } from 'leaflet';
 import { BBox } from 'rbush';
-import { Clusterizable, ClusterizableLeaf, ClusterizablePair } from './model';
+import { SpatialCluster, SpatialLeaf, SpatialObject } from './model';
 import { circleCircleOverlap } from './overlap';
 
-export abstract class ClusterizableCircle implements Clusterizable {
+export abstract class Circle implements SpatialObject {
   constructor(
     readonly x: number,
     readonly y: number,
@@ -24,8 +24,8 @@ export abstract class ClusterizableCircle implements Clusterizable {
   get minY(): number {
     return this.y - this.radius;
   }
-  overlaps<T extends Clusterizable = Clusterizable>(other: T): number {
-    if (other instanceof ClusterizableCircle) {
+  overlaps<T extends SpatialObject = SpatialObject>(other: T): number {
+    if (other instanceof Circle) {
       return circleCircleOverlap(this, other, this.padding);
     }
 
@@ -33,33 +33,28 @@ export abstract class ClusterizableCircle implements Clusterizable {
   }
 }
 
-export type ClusterizableCircleClusterOptions = {
+export type CircleClusterOptions = {
   padding: number;
   scale?: (weight: number) => number;
-  weight?: <T>(leaf: ClusterizablePair | ClusterizableLeaf<T>) => number;
+  weight?: <T>(leaf: SpatialCluster | SpatialLeaf<T>) => number;
   baseRadius?: number;
 };
 
-export class ClusterizableCircleCluster
-  extends ClusterizableCircle
-  implements ClusterizablePair
-{
+export class CircleCluster extends Circle implements SpatialCluster {
   readonly w: number;
 
   constructor(
-    readonly left: ClusterizableCircleCluster | ClusterizableLeaf,
-    readonly right: ClusterizableCircleCluster | ClusterizableLeaf,
+    readonly left: CircleCluster | SpatialLeaf,
+    readonly right: CircleCluster | SpatialLeaf,
     {
       padding,
       scale = Math.sqrt,
       weight = () => 1,
       baseRadius = 10,
-    }: ClusterizableCircleClusterOptions
+    }: CircleClusterOptions
   ) {
-    const leftW =
-      left instanceof ClusterizableCircleCluster ? left.w : weight(left);
-    const rightW =
-      right instanceof ClusterizableCircleCluster ? right.w : weight(right);
+    const leftW = left instanceof CircleCluster ? left.w : weight(left);
+    const rightW = right instanceof CircleCluster ? right.w : weight(right);
 
     const w = leftW + rightW;
     const x = (left.x * leftW + right.x * rightW) / w;
@@ -71,10 +66,7 @@ export class ClusterizableCircleCluster
   }
 }
 
-export class ClusterizableCircleLeaf
-  extends ClusterizableCircle
-  implements ClusterizableLeaf<CircleMarker>
-{
+export class CircleLeaf extends Circle implements SpatialLeaf<CircleMarker> {
   constructor(
     x: number,
     y: number,

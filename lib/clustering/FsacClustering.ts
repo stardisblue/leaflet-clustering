@@ -6,80 +6,76 @@ import {
   SupportedMarker,
 } from '../CircleClusterMarker';
 import { Fsac } from '../fsac';
-import {
-  ClusterizableCircleCluster,
-  ClusterizableCircleClusterOptions,
-  ClusterizableCircleLeaf,
-} from './ClusterizableCircle';
-import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
+import { CircleCluster, CircleClusterOptions, CircleLeaf } from './Circle';
 import type {
   ClusteringMethod,
-  ClusterizableLeaf,
-  ClusterizablePair,
   ClusterizeOptions,
+  SpatialCluster,
+  SpatialLeaf,
 } from './model';
+import { RectangleLeaf } from './Rectangle';
 
-type ClusterizablePairCtor<P extends ClusterizablePair, O = any> = new (
-  left: P | ClusterizableLeaf,
-  right: P | ClusterizableLeaf,
+type SpatialClusterCtor<P extends SpatialCluster, O = any> = new (
+  left: P | SpatialLeaf,
+  right: P | SpatialLeaf,
   options: O
 ) => P;
 
 type ClusterMarkerCtor<
-  P extends ClusterizablePair,
+  P extends SpatialCluster,
   M extends SupportedMarker,
   O = any,
 > = new (
   latLng: LatLng,
   layers: SupportedMarker[],
-  clusterizable: P,
+  cluster: P,
   options?: O
 ) => M;
 
-type ClusterizablePairOptions<P> =
-  P extends ClusterizablePairCtor<any, infer O> ? O : never;
+type SpatialClusterOptions<S> =
+  S extends SpatialClusterCtor<any, infer O> ? O : never;
 
-type ClusterMarkerOptions<P> =
-  P extends ClusterMarkerCtor<any, any, infer O> ? O : never;
+type ClusterMarkerOptions<C> =
+  C extends ClusterMarkerCtor<any, any, infer O> ? O : never;
 
 export type FsacClusteringOptions<
-  Ptor extends ClusterizablePairCtor<any>,
-  Mtor extends ClusterMarkerCtor<InstanceType<Ptor>, any>,
+  S extends SpatialClusterCtor<any>,
+  C extends ClusterMarkerCtor<InstanceType<S>, any>,
 > = {
   padding?: number;
-  Clusterizer?: Ptor;
-  clusterizerOptions?: Omit<ClusterizablePairOptions<Ptor>, 'padding'>;
-  ClusterMarker?: Mtor;
-  clusterMarkerOptions?: ClusterMarkerOptions<Mtor>;
+  SpatialCluster?: S;
+  spatialClusterOptions?: Omit<SpatialClusterOptions<S>, 'padding'>;
+  ClusterMarker?: C;
+  clusterMarkerOptions?: ClusterMarkerOptions<C>;
 };
 
 export class FsacClustering<
-  P extends ClusterizablePairCtor<any> = ClusterizablePairCtor<
-    ClusterizableCircleCluster,
-    ClusterizableCircleClusterOptions
+  S extends SpatialClusterCtor<any> = SpatialClusterCtor<
+    CircleCluster,
+    CircleClusterOptions
   >,
-  M extends ClusterMarkerCtor<InstanceType<P>, any> = ClusterMarkerCtor<
-    InstanceType<P>,
+  C extends ClusterMarkerCtor<InstanceType<S>, any> = ClusterMarkerCtor<
+    InstanceType<S>,
     CircleClusterMarker,
     CircleClusterMarkerOptions
   >,
-> implements ClusteringMethod<InstanceType<M>>
+> implements ClusteringMethod<InstanceType<C>>
 {
-  private fsac: Fsac<ClusterizablePair | ClusterizableLeaf>;
+  private fsac: Fsac<SpatialCluster | SpatialLeaf>;
   private padding: number;
-  private Clusterizer: P;
-  private ClusterMarker: M;
-  options: Omit<FsacClusteringOptions<P, M>, 'Clusterizer' | 'ClusterMarker'>;
+  private SpatialCluster: S;
+  private ClusterMarker: C;
+  options: Omit<FsacClusteringOptions<S, C>, 'Clusterizer' | 'ClusterMarker'>;
 
   constructor({
-    Clusterizer = ClusterizableCircleCluster as any,
+    SpatialCluster = CircleCluster as any,
     ClusterMarker = CircleClusterMarker as any,
     ...options
-  }: FsacClusteringOptions<P, M> = {}) {
+  }: FsacClusteringOptions<S, C> = {}) {
     options.padding ??= 4;
     this.padding = options.padding;
     this.options = options;
-    this.Clusterizer = Clusterizer;
+    this.SpatialCluster = SpatialCluster;
     this.ClusterMarker = ClusterMarker;
 
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
@@ -90,8 +86,8 @@ export class FsacClustering<
       compareMinY: (a, b) => a.minY - b.minY,
       overlap: (a, b) => a.overlaps(b),
       merge: (a, b) =>
-        new Clusterizer(a, b, {
-          ...(options.clusterizerOptions ?? {}),
+        new SpatialCluster(a, b, {
+          ...(options.spatialClusterOptions ?? {}),
           padding: this.padding,
         }),
     });
@@ -100,22 +96,22 @@ export class FsacClustering<
   clusterize(
     markers: SupportedMarker[],
     { project, unproject }: ClusterizeOptions
-  ): InstanceType<M>[] {
+  ): InstanceType<C>[] {
     const leafs = markers.map(this.createLeaf(project));
 
     const clusters = this.fsac.clusterize(leafs);
 
     return clusters.map((c) => {
-      if (c instanceof this.Clusterizer)
+      if (c instanceof this.SpatialCluster)
         // TODO: I think this should be moved further up (to ClusterFeatureGroup)
         return new this.ClusterMarker(
           unproject(c),
           flatten(c),
-          c as InstanceType<P>,
+          c as InstanceType<S>,
           this.options.clusterMarkerOptions
         );
 
-      return (c as ClusterizableLeaf).data;
+      return (c as SpatialLeaf).data;
     });
   }
 
@@ -123,9 +119,9 @@ export class FsacClustering<
     return (marker: SupportedMarker) => {
       const { x, y } = project(marker.getLatLng());
       if (marker instanceof CircleMarker) {
-        return new ClusterizableCircleLeaf(x, y, this.padding, marker);
+        return new CircleLeaf(x, y, this.padding, marker);
       } else if (marker instanceof Marker) {
-        return new ClusterizableRectangleLeaf(x, y, this.padding, marker);
+        return new RectangleLeaf(x, y, this.padding, marker);
       }
 
       throw new Error(

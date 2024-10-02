@@ -1,18 +1,18 @@
 import {
-  Marker,
-  LatLng,
   divIcon,
-  Util,
-  MarkerOptions,
   DivIconOptions,
+  LatLng,
+  Marker,
+  MarkerOptions,
+  Util,
 } from 'leaflet';
 import { SupportedMarker } from './CircleClusterMarker';
-import { ClusterizableSquareCluster } from './clustering/ClusterizableRectangle';
+import { SquareCluster } from './clustering/Rectangle';
 
 export type RectangleDivClusterMarkerOptions = Omit<MarkerOptions, 'icon'> & {
   icon?: (
     layers: SupportedMarker[],
-    clusterizable: ClusterizableSquareCluster
+    cluster: SquareCluster
   ) => Omit<DivIconOptions, 'icon' | 'iconSize' | 'iconAnchor'>;
 };
 
@@ -21,7 +21,7 @@ export interface RectangleDivClusterMarker extends Marker {
   new (
     latLng: LatLng,
     layers: SupportedMarker[],
-    clusterizable: ClusterizableSquareCluster,
+    cluster: SquareCluster,
     options?: RectangleDivClusterMarkerOptions
   ): RectangleDivClusterMarker;
   getLayers(): SupportedMarker[];
@@ -33,23 +33,20 @@ export const RectangleDivClusterMarker: RectangleDivClusterMarker =
       this: RectangleDivClusterMarker,
       latLng: LatLng,
       layers: SupportedMarker[],
-      clusterizable: ClusterizableSquareCluster,
+      cluster: SquareCluster,
       { icon, ...options }: RectangleDivClusterMarkerOptions = {}
     ) {
       this._layers = Object.fromEntries(
         Array.from(layers, (l) => [this.getLayerId(l), l])
       );
       const iconOptions = icon
-        ? icon(layers, clusterizable)
+        ? icon(layers, cluster)
         : { html: '' + layers.length };
 
       (Marker.prototype as any).initialize.call(this, latLng, {
         icon: divIcon({
           ...iconOptions,
-          iconSize: [
-            clusterizable.maxX - clusterizable.minX,
-            clusterizable.maxY - clusterizable.minY,
-          ],
+          iconSize: [cluster.maxX - cluster.minX, cluster.maxY - cluster.minY],
         }),
         ...options,
       });
