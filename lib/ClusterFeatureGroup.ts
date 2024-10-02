@@ -2,25 +2,29 @@ import { FeatureGroup, LeafletEvent, Map } from 'leaflet';
 import { CircleClusterMarker, SupportedMarker } from './CircleClusterMarker';
 import { FsacClustering } from './clustering/FsacClustering';
 import {
-  Clustering,
-  ClusteringCtor,
-  ClusteringCtorOptions,
+  ClusteringMethod,
+  ClusteringMethodCtor,
+  ClusteringMethodOptions,
 } from './clustering/model';
+import { Options } from './options';
 
-type ClusterFeatureGroupOptions<C extends ClusteringCtor<any>> = {
+type ClusterFeatureGroupMethodOptions<C extends ClusteringMethodCtor<any>> = {
   method?: C;
-  restrictToVisibleBounds?: boolean;
-} & ClusteringCtorOptions<C>;
+} & ClusteringMethodOptions<C>;
+
+type ClusterFeatureGroupOptions<C extends ClusteringMethodCtor<any>> = Options &
+  ClusterFeatureGroupMethodOptions<C>;
 
 interface ClusterFeatureGroupCtor {
-  new <C extends ClusteringCtor<any> = typeof FsacClustering>(
+  new <C extends ClusteringMethodCtor<any> = typeof FsacClustering>(
     clusters: SupportedMarker[],
     options?: ClusterFeatureGroupOptions<C>
   ): ClusterFeatureGroup<InstanceType<C>>;
 }
 
-interface ClusterFeatureGroup<C extends Clustering<any> = FsacClustering>
-  extends FeatureGroup {
+interface ClusterFeatureGroup<
+  C extends ClusteringMethod<any> = ClusteringMethod<any>,
+> extends FeatureGroup {
   _clusterer: C;
   _restrictToVisibleBounds: boolean;
   _markers: SupportedMarker[];
@@ -38,12 +42,11 @@ export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
       this: ClusterFeatureGroup,
       layers: SupportedMarker[],
       {
-        restrictToVisibleBounds = false,
         method = FsacClustering,
         ...options
       }: ClusterFeatureGroupOptions<typeof FsacClustering> = {}
     ) {
-      this._restrictToVisibleBounds = restrictToVisibleBounds;
+      this._restrictToVisibleBounds = options.restrictToVisibleBounds ?? false;
       this._markers = layers;
       this._clusterer = new method(options);
 
@@ -79,13 +82,20 @@ export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
     },
 
     _moveEnd(this: ClusterFeatureGroup, _e: LeafletEvent) {
-      if (this._restrictToVisibleBounds) this.clusterize();
+      if (
+        this._restrictToVisibleBounds &&
+        !this._clusterer?.inhibitors?.includes('restrictToVisibleBounds')
+      )
+        this.clusterize();
     },
 
     clusterize(this: ClusterFeatureGroup) {
       let markers = this._markers;
 
-      if (this._restrictToVisibleBounds) {
+      if (
+        this._restrictToVisibleBounds &&
+        !this._clusterer?.inhibitors?.includes('restrictToVisibleBounds')
+      ) {
         const bounds = this._map.getBounds().pad(1);
 
         markers = this._markers.filter((marker) =>

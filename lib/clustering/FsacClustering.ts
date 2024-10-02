@@ -13,10 +13,10 @@ import {
 } from './ClusterizableCircle';
 import { ClusterizableRectangleLeaf } from './ClusterizableRectangle';
 import type {
-  Clustering,
-  ClusteringOptions,
+  ClusteringMethod,
   ClusterizableLeaf,
   ClusterizablePair,
+  ClusterizeOptions,
 } from './model';
 
 type ClusterizablePairCtor<P extends ClusterizablePair, O = any> = new (
@@ -63,7 +63,7 @@ export class FsacClustering<
     CircleClusterMarker,
     CircleClusterMarkerOptions
   >,
-> implements Clustering<InstanceType<M>>
+> implements ClusteringMethod<InstanceType<M>>
 {
   private fsac: Fsac<ClusterizablePair | ClusterizableLeaf>;
   private padding: number;
@@ -99,7 +99,7 @@ export class FsacClustering<
 
   clusterize(
     markers: SupportedMarker[],
-    { project, unproject }: ClusteringOptions
+    { project, unproject }: ClusterizeOptions
   ): InstanceType<M>[] {
     const leafs = markers.map(this.createLeaf(project));
 
