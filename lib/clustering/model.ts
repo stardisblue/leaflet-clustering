@@ -1,11 +1,7 @@
+import { LatLng, Point } from 'leaflet';
 import { BBox } from 'rbush';
 import { SupportedMarker } from '../CircleClusterMarker';
 import { Leaf, Pair } from '../binary-tree-traversal';
-import { LatLng, Point } from 'leaflet';
-
-export type ClusteringCtor<C extends Clustering<any>, O> = new (
-  options: O
-) => C;
 
 export type ClusteringOptions = {
   project: (layer: LatLng) => Point;
@@ -15,6 +11,14 @@ export type ClusteringOptions = {
 export interface Clustering<M extends SupportedMarker> {
   clusterize(items: SupportedMarker[], options: ClusteringOptions): M[];
 }
+
+export type ClusteringCtor<C extends Clustering<any>, O = any> = new (
+  options: O
+) => C;
+
+export type ClusteringCtorOptions<C> = C extends new (options: infer O) => any
+  ? O
+  : never;
 
 export interface Clusterizable {
   readonly x: number;

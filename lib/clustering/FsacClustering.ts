@@ -26,8 +26,8 @@ type ClusterizablePairCtor<P extends ClusterizablePair, O = any> = new (
 ) => P;
 
 type ClusterMarkerCtor<
-  M extends SupportedMarker,
   P extends ClusterizablePair,
+  M extends SupportedMarker,
   O = any,
 > = new (
   latLng: LatLng,
@@ -36,43 +36,43 @@ type ClusterMarkerCtor<
   options?: O
 ) => M;
 
-type ClusterizablePairOptions<P extends ClusterizablePairCtor<any>> =
+type ClusterizablePairOptions<P> =
   P extends ClusterizablePairCtor<any, infer O> ? O : never;
 
-type ClusterMarkerOptions<P extends ClusterMarkerCtor<any, any>> =
+type ClusterMarkerOptions<P> =
   P extends ClusterMarkerCtor<any, any, infer O> ? O : never;
 
 export type FsacClusteringOptions<
-  P extends ClusterizablePairCtor<any>,
-  M extends ClusterMarkerCtor<any, InstanceType<P>>,
+  Ptor extends ClusterizablePairCtor<any>,
+  Mtor extends ClusterMarkerCtor<InstanceType<Ptor>, any>,
 > = {
   padding?: number;
-  Clusterizer?: P;
-  clusterizerOptions?: ClusterizablePairOptions<P>;
-  ClusterMarker?: M;
-  clusterMarkerOptions?: ClusterMarkerOptions<M>;
+  Clusterizer?: Ptor;
+  clusterizerOptions?: Omit<ClusterizablePairOptions<Ptor>, 'padding'>;
+  ClusterMarker?: Mtor;
+  clusterMarkerOptions?: ClusterMarkerOptions<Mtor>;
 };
 
 export class FsacClustering<
-  P extends ClusterizablePairCtor<any, any> = ClusterizablePairCtor<
+  P extends ClusterizablePairCtor<any> = ClusterizablePairCtor<
     ClusterizableCircleCluster,
     ClusterizableCircleClusterOptions
   >,
-  M extends ClusterMarkerCtor<any, InstanceType<P>, any> = ClusterMarkerCtor<
-    CircleClusterMarker,
+  M extends ClusterMarkerCtor<InstanceType<P>, any> = ClusterMarkerCtor<
     InstanceType<P>,
+    CircleClusterMarker,
     CircleClusterMarkerOptions
   >,
 > implements Clustering<InstanceType<M>>
 {
   private fsac: Fsac<ClusterizablePair | ClusterizableLeaf>;
   private padding: number;
-  private ClusterMarker: M;
   private Clusterizer: P;
+  private ClusterMarker: M;
   options: Omit<FsacClusteringOptions<P, M>, 'Clusterizer' | 'ClusterMarker'>;
 
   constructor({
-    Clusterizer = ClusterizableCircleCluster as P,
+    Clusterizer = ClusterizableCircleCluster as any,
     ClusterMarker = CircleClusterMarker as any,
     ...options
   }: FsacClusteringOptions<P, M> = {}) {
@@ -107,7 +107,7 @@ export class FsacClustering<
 
     return clusters.map((c) => {
       if (c instanceof this.Clusterizer)
-        // TODO: I think this should be moved farther up (to ClusterFeatureGroup)
+        // TODO: I think this should be moved further up (to ClusterFeatureGroup)
         return new this.ClusterMarker(
           unproject(c),
           flatten(c),
