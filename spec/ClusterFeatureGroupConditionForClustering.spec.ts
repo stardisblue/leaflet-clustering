@@ -72,3 +72,30 @@ describe('Apply clustering when zooming on map', () => {
     expect(cluster.getClusteringMethod().hasBeenCalled).toBe(2);
   });
 });
+
+describe('Apply clustering when moving on map', () => {
+  beforeEach(() => {
+    cluster = new ClusterFeatureGroup(markers, {
+      method: SpyNoClustering,
+      restrictToVisibleBounds: true,
+    });
+    leafletMap.setView([48.9, 2.3], 3).addLayer(cluster);
+  });
+
+  it('should apply clustering when zooming', () => {
+    expect(cluster.getClusteringMethod().hasBeenCalled).toBe(1);
+
+    leafletMap.setView([48.9, 2.8]);
+    expect(cluster.getClusteringMethod().hasBeenCalled).toBe(2);
+  });
+
+  it('should detach when removed from map', () => {
+    expect(cluster.getClusteringMethod().hasBeenCalled).toBe(1);
+
+    leafletMap.setView([11, 45]);
+    expect(cluster.getClusteringMethod().hasBeenCalled).toBe(2);
+
+    leafletMap.removeLayer(cluster).setView([12, 66]);
+    expect(cluster.getClusteringMethod().hasBeenCalled).toBe(2);
+  });
+});
