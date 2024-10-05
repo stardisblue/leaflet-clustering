@@ -9,14 +9,8 @@ export default defineWorkspace([
     extends: 'vite.config.ts',
     test: {
       name: 'node',
-      exclude: [
-        '**/node_modules/**',
-        '**/dist/**',
-        '**/cypress/**',
-        '**/.{idea,git,cache,output,temp}/**',
-        '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
-        'spec/**/*.browser.spec.ts',
-      ],
+      exclude: ['spec/**/*.browser.spec.ts'],
+      include: ['lib/**/*.{test,spec}.ts', 'spec/**/*.{test,spec}.ts'],
     },
   },
   {
