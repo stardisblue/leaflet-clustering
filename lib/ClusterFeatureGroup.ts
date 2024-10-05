@@ -1,6 +1,6 @@
 import { FeatureGroup, LeafletEvent, Map } from 'leaflet';
 
-import { CircleClusterMarker, SupportedMarker } from './CircleClusterMarker';
+import { SupportedMarker } from './CircleClusterMarker';
 import { FsacClustering } from './clustering/FsacClustering';
 import {
   ClusteringMethod,
@@ -33,7 +33,7 @@ interface ClusterFeatureGroup<
   _zoomEnd(e: LeafletEvent): void;
   _zoom: number;
 
-  getLayers(): CircleClusterMarker[];
+  getLayers(): ReturnType<C['clusterize']>;
   clusterize(): this;
 }
 

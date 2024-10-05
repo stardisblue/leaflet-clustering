@@ -10,7 +10,7 @@ export type ClusterizeOptions = {
   unproject: (point: { x: number; y: number }) => LatLng;
 };
 
-export interface ClusteringMethod<M extends SupportedMarker> {
+export interface ClusteringMethod<M extends SupportedMarker = SupportedMarker> {
   readonly inhibitors?: (keyof Options)[];
   clusterize(items: SupportedMarker[], options: ClusterizeOptions): M[];
 }
