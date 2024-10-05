@@ -34,6 +34,7 @@ interface ClusterFeatureGroup<
   _zoom: number;
 
   getLayers(): ReturnType<C['clusterize']>;
+  getClusteringMethod(): C;
   clusterize(): this;
 }
 
@@ -89,7 +90,9 @@ export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
       )
         this.clusterize();
     },
-
+    getClusteringMethod(this: ClusterFeatureGroup) {
+      return this._clusterer;
+    },
     clusterize(this: ClusterFeatureGroup) {
       let markers = this._markers;
 
