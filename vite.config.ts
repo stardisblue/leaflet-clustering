@@ -7,9 +7,6 @@ export default defineConfig({
   build: {
     lib: { entry: resolve(__dirname, 'lib/main.ts'), formats: ['es', 'cjs'] },
   },
-  test: {
-    environment: 'happy-dom',
-  },
   resolve: {
     alias: {
       '@': resolve(__dirname, './lib'),

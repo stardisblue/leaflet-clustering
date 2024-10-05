@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { icon, marker } from 'leaflet';
 import { describe, expect, test } from 'vitest';
 

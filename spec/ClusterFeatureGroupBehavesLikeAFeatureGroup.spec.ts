@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
 import { NoClustering } from '@/clustering/NoClustering';
 import { circleMarker, map, marker } from 'leaflet';
