@@ -82,7 +82,7 @@ describe('Apply clustering when moving on map', () => {
     leafletMap.setView([48.9, 2.3], 3).addLayer(cluster);
   });
 
-  it('should apply clustering when zooming', () => {
+  it('should apply clustering when moving', () => {
     expect(cluster.getClusteringMethod().hasBeenCalled).toBe(1);
 
     leafletMap.setView([48.9, 2.8]);
