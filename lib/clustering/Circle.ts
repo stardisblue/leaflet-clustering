@@ -1,5 +1,6 @@
 import { CircleMarker } from 'leaflet';
 import { BBox } from 'rbush';
+
 import { SpatialCluster, SpatialLeaf, SpatialObject } from './model';
 import { circleCircleOverlap } from './overlap';
 

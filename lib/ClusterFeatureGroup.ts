@@ -1,4 +1,5 @@
 import { FeatureGroup, LeafletEvent, Map } from 'leaflet';
+
 import { CircleClusterMarker, SupportedMarker } from './CircleClusterMarker';
 import { FsacClustering } from './clustering/FsacClustering';
 import {

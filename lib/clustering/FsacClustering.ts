@@ -1,11 +1,13 @@
 import { CircleMarker, LatLng, Marker, Point } from 'leaflet';
-import { flatten } from '../binary-tree-traversal';
+
+import { flatten } from '@/binary-tree-traversal';
 import {
   CircleClusterMarker,
   CircleClusterMarkerOptions,
   SupportedMarker,
-} from '../CircleClusterMarker';
-import { Fsac } from '../fsac';
+} from '@/CircleClusterMarker';
+import { Fsac } from '@/fsac';
+
 import { CircleCluster, CircleClusterOptions, CircleLeaf } from './Circle';
 import type {
   ClusteringMethod,

@@ -1,6 +1,7 @@
-import { describe, expect, test } from 'vitest';
-import { RectangleLeaf } from '../../lib/clustering/Rectangle';
 import { icon, marker } from 'leaflet';
+import { describe, expect, test } from 'vitest';
+
+import { RectangleLeaf } from '@/clustering/Rectangle';
 
 const rect = ({
   x,

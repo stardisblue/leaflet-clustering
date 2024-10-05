@@ -1,4 +1,5 @@
 import RBush, { BBox } from 'rbush';
+
 import { Ref } from './ref';
 
 export type RbushOptions<T> = {

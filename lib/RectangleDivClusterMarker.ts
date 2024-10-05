@@ -6,6 +6,7 @@ import {
   MarkerOptions,
   Util,
 } from 'leaflet';
+
 import { SupportedMarker } from './CircleClusterMarker';
 import { SquareCluster } from './clustering/Rectangle';
 

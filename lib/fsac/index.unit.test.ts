@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import flat from '../../spec/assets/flat.json';
+import flat from '@spec/assets/flat.json';
 import { Fsac } from '.';
 
 type CircleCluster = {

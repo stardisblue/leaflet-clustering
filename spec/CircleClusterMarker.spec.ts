@@ -1,7 +1,7 @@
 import { circleMarker, latLng, map } from 'leaflet';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { CircleClusterMarker } from '../lib/CircleClusterMarker';
+import { CircleClusterMarker } from '@/CircleClusterMarker';
 
 type CustomContext = { map: L.Map; markers: L.CircleMarker[] };
 

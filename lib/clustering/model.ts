@@ -1,8 +1,9 @@
 import { LatLng, Point } from 'leaflet';
 import { BBox } from 'rbush';
-import { SupportedMarker } from '../CircleClusterMarker';
-import { Leaf, Pair } from '../binary-tree-traversal';
-import { Options } from '../options';
+
+import { SupportedMarker } from '@/CircleClusterMarker';
+import { Leaf, Pair } from '@/binary-tree-traversal';
+import { Options } from '@/options';
 
 export type ClusterizeOptions = {
   project: (layer: LatLng) => Point;

@@ -5,6 +5,7 @@ import {
   Marker,
   Util,
 } from 'leaflet';
+
 import { Circle } from './clustering/Circle';
 
 export type SupportedMarker = CircleMarker | Marker;

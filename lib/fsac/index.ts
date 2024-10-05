@@ -1,4 +1,5 @@
 import type RBush from 'rbush';
+
 import { rBushFactory, RbushOptions } from './rBush';
 import { Ref, ref } from './ref';
 
