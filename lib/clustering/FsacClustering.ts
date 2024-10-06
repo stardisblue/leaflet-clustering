@@ -17,13 +17,13 @@ import type {
 } from './model';
 import { RectangleLeaf } from './Rectangle';
 
-type SpatialClusterCtor<P extends SpatialCluster, O = any> = new (
+type SpatialClusterConstructor<P extends SpatialCluster, O = any> = new (
   left: P | SpatialLeaf,
   right: P | SpatialLeaf,
   options: O
 ) => P;
 
-type ClusterMarkerCtor<
+type ClusterMarkerConstructor<
   P extends SpatialCluster,
   M extends SupportedMarker,
   O = any,
@@ -35,14 +35,14 @@ type ClusterMarkerCtor<
 ) => M;
 
 type SpatialClusterOptions<S> =
-  S extends SpatialClusterCtor<any, infer O> ? O : never;
+  S extends SpatialClusterConstructor<any, infer O> ? O : never;
 
 type ClusterMarkerOptions<C> =
-  C extends ClusterMarkerCtor<any, any, infer O> ? O : never;
+  C extends ClusterMarkerConstructor<any, any, infer O> ? O : never;
 
 export type FsacClusteringOptions<
-  S extends SpatialClusterCtor<any>,
-  C extends ClusterMarkerCtor<InstanceType<S>, any>,
+  S extends SpatialClusterConstructor<any>,
+  C extends ClusterMarkerConstructor<InstanceType<S>, any>,
 > = {
   padding?: number;
   SpatialCluster?: S;
@@ -52,11 +52,14 @@ export type FsacClusteringOptions<
 };
 
 export class FsacClustering<
-  S extends SpatialClusterCtor<any> = SpatialClusterCtor<
+  S extends SpatialClusterConstructor<any> = SpatialClusterConstructor<
     CircleCluster,
     CircleClusterOptions
   >,
-  C extends ClusterMarkerCtor<InstanceType<S>, any> = ClusterMarkerCtor<
+  C extends ClusterMarkerConstructor<
+    InstanceType<S>,
+    any
+  > = ClusterMarkerConstructor<
     InstanceType<S>,
     CircleClusterMarker,
     CircleClusterMarkerOptions

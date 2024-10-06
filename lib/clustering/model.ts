@@ -15,7 +15,7 @@ export interface ClusteringMethod<M extends SupportedMarker = SupportedMarker> {
   clusterize(items: SupportedMarker[], options: ClusterizeOptions): M[];
 }
 
-export type ClusteringMethodCtor<
+export type ClusteringMethodConstructor<
   C extends ClusteringMethod<any>,
   O = any,
 > = new (options: O) => C;

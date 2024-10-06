@@ -4,20 +4,22 @@ import { SupportedMarker } from './CircleClusterMarker';
 import { FsacClustering } from './clustering/FsacClustering';
 import {
   ClusteringMethod,
-  ClusteringMethodCtor,
+  ClusteringMethodConstructor,
   ClusteringMethodOptions,
 } from './clustering/model';
 import { Options } from './options';
 
-type ClusterFeatureGroupMethodOptions<C extends ClusteringMethodCtor<any>> = {
+type ClusterFeatureGroupMethodOptions<
+  C extends ClusteringMethodConstructor<any>,
+> = {
   method?: C;
 } & ClusteringMethodOptions<C>;
 
-type ClusterFeatureGroupOptions<C extends ClusteringMethodCtor<any>> = Options &
-  ClusterFeatureGroupMethodOptions<C>;
+type ClusterFeatureGroupOptions<C extends ClusteringMethodConstructor<any>> =
+  Options & ClusterFeatureGroupMethodOptions<C>;
 
-interface ClusterFeatureGroupCtor {
-  new <C extends ClusteringMethodCtor<any> = typeof FsacClustering>(
+interface ClusterFeatureGroupConstructor {
+  new <C extends ClusteringMethodConstructor<any> = typeof FsacClustering>(
     clusters: SupportedMarker[],
     options?: ClusterFeatureGroupOptions<C>
   ): ClusterFeatureGroup<InstanceType<C>>;
@@ -38,8 +40,8 @@ export interface ClusterFeatureGroup<
   clusterize(): this;
 }
 
-export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
-  {
+export const ClusterFeatureGroup: ClusterFeatureGroupConstructor =
+  FeatureGroup.extend({
     initialize(
       this: ClusterFeatureGroup,
       layers: SupportedMarker[],
@@ -115,5 +117,4 @@ export const ClusterFeatureGroup: ClusterFeatureGroupCtor = FeatureGroup.extend(
       this.clearLayers();
       layers.map((l) => this.addLayer(l));
     },
-  }
-) as any;
+  }) as any;
