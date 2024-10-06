@@ -1,19 +1,19 @@
 // @vitest-environment happy-dom
 
 import { circleMarker, Map, map, marker } from 'leaflet';
-import { beforeEach, expect, it, vi } from 'vitest';
+import { beforeEach, expect, it } from 'vitest';
 
-import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
+import { FsacClustering } from '@/clustering/FsacClustering';
 
 type Context = {
   map: Map;
 };
 
 beforeEach<Context>((context) => {
-  context.map = map(document.createElement('div'));
+  context.map = map(document.createElement('div')).setView([48.9, 2.3], 0);
 });
 
-(it<Context>).for([
+it.for([
   {
     name: 'circleMarker & circleMarker',
     markers: [
@@ -70,13 +70,16 @@ beforeEach<Context>((context) => {
 ])(
   'should clusterize $name',
   async ({ markers, base, updated }, { map }: any) => {
-    map.setView([48.9, 2.3], base);
-    const cluster = new ClusterFeatureGroup(markers);
-    cluster.addTo(map);
+    map.setZoom(base);
+    const fsac = new FsacClustering();
 
-    await vi.waitFor(() => cluster.getLayers().length == 2);
-    expect(cluster.getLayers().length).toBe(2);
+    const options = {
+      project: map.project.bind(map),
+      unproject: map.unproject.bind(map),
+    };
+
+    expect(fsac.clusterize(markers, options).length).toBe(2);
     map.setZoom(updated);
-    expect(cluster.getLayers().length).toBe(1);
+    expect(fsac.clusterize(markers, options).length).toBe(1);
   }
 );
