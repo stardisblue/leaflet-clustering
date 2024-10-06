@@ -1,8 +1,6 @@
 import { LatLng, Point } from 'leaflet';
-import { BBox } from 'rbush';
 
 import { SupportedMarker } from '@/CircleClusterMarker';
-import { Leaf, Pair } from '@/binary-tree-traversal';
 import { Options } from '@/options';
 
 export type ClusterizeOptions = {
@@ -23,25 +21,3 @@ export type ClusteringMethodConstructor<
 export type ClusteringMethodOptions<C> = C extends new (options: infer O) => any
   ? O
   : never;
-
-export interface SpatialObject {
-  readonly x: number;
-  readonly y: number;
-  readonly minX: number;
-  readonly minY: number;
-
-  toPaddedBBox(padding: number): BBox;
-  overlaps<T extends SpatialObject = SpatialObject>(
-    other: T,
-    padding: number
-  ): number;
-}
-
-export interface SpatialLeaf<T = any> extends SpatialObject, Leaf<T> {
-  data: T;
-}
-
-export interface SpatialCluster extends SpatialObject, Pair {
-  readonly left: SpatialCluster | SpatialLeaf;
-  readonly right: SpatialCluster | SpatialLeaf;
-}

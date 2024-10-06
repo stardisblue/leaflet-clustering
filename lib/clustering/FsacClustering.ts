@@ -9,13 +9,9 @@ import {
 import { Fsac } from '@/fsac';
 
 import { CircleCluster, CircleClusterOptions, CircleLeaf } from './Circle';
-import type {
-  ClusteringMethod,
-  ClusterizeOptions,
-  SpatialCluster,
-  SpatialLeaf,
-} from './model';
+import type { ClusteringMethod, ClusterizeOptions } from './model';
 import { RectangleLeaf } from './Rectangle';
+import { SpatialCluster, SpatialLeaf } from './SpatialObject';
 
 type SpatialClusterConstructor<P extends SpatialCluster, O = any> = new (
   left: P | SpatialLeaf,

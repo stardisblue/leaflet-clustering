@@ -2,8 +2,8 @@ import { Marker } from 'leaflet';
 import { BBox } from 'rbush';
 
 import { Circle } from './Circle';
-import { SpatialCluster, SpatialLeaf, SpatialObject } from './model';
 import { rectCircleOverlap, rectRectOverlap } from './overlap';
+import { SpatialObject, SpatialCluster, SpatialLeaf } from './SpatialObject';
 
 export abstract class Rectangle implements SpatialObject {
   constructor(
