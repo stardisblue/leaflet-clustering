@@ -3,7 +3,11 @@
 import { circleMarker, divIcon, marker } from 'leaflet';
 import { describe, expect, it } from 'vitest';
 
-import { circleCircleOverlap, rectRectOverlap } from './overlap';
+import {
+  circleCircleOverlap,
+  rectCircleOverlap,
+  rectRectOverlap,
+} from './overlap';
 import { RectangleLeaf } from './Rectangle';
 import { CircleLeaf } from './Circle';
 
@@ -94,6 +98,43 @@ describe('Rectangle Rectangle Overlap', () => {
     ({ a, b }) => {
       expect(rectRectOverlap(a, b, 2)).toBeLessThanOrEqual(0);
       expect(rectRectOverlap(b, a, 2)).toBeLessThanOrEqual(0);
+    }
+  );
+});
+
+describe('Rectangle Circle Overlap', () => {
+  it.each([
+    { a: r(0, 0, 10, 10), b: c(9, 0, 5) },
+    { a: r(1, 1, 10, 10), b: c(0, 9, 5) },
+    { a: r(1, 1, 10, 10), b: c(3, 3, 5) },
+  ])('is >0 if there is overlap between $a & $b', ({ a, b }) => {
+    expect(rectCircleOverlap(a, b, 0)).toBeGreaterThan(0);
+  });
+
+  it.each([
+    { a: r(0, 0, 10, 10), b: c(15, 0, 5) },
+    { a: r(1, 1, 10, 10), b: c(1, 16, 5) },
+    { a: r(1, 1, 10, 10), b: c(15, 15, 5) },
+  ])('is <=0 if there is no overlap between $a & $b', ({ a, b }) => {
+    expect(rectCircleOverlap(a, b, 0)).toBeLessThanOrEqual(0);
+  });
+
+  it.each([
+    { a: r(0, 0, 10, 10), b: c(11, 0, 5) },
+    { a: r(1, 1, 10, 10), b: c(0, 11, 5) },
+    { a: r(1, 1, 10, 10), b: c(6, 6, 5) },
+  ])('is > 0 if there is overlap between $a & $b with padding', ({ a, b }) => {
+    expect(rectCircleOverlap(a, b, 2)).toBeGreaterThan(0);
+  });
+
+  it.each([
+    { a: r(0, 0, 10, 10), b: c(17, 0, 5) },
+    { a: r(1, 1, 10, 10), b: c(1, 18, 5) },
+    { a: r(1, 1, 10, 10), b: c(16, 16, 5) },
+  ])(
+    'is <=0 if there is no overlap between $a & $b with padding',
+    ({ a, b }) => {
+      expect(rectCircleOverlap(a, b, 2)).toBeLessThanOrEqual(0);
     }
   );
 });
