@@ -1,7 +1,7 @@
 import {
   CircleMarker,
   CircleMarkerOptions,
-  LatLng,
+  LatLngExpression,
   Marker,
   Util,
 } from 'leaflet';
@@ -15,7 +15,7 @@ export type CircleClusterMarkerOptions = Omit<CircleMarkerOptions, 'radius'>;
 export interface CircleClusterMarker extends CircleMarker {
   _layers: Record<number, SupportedMarker>;
   new (
-    latLng: LatLng,
+    latLng: LatLngExpression,
     layers: SupportedMarker[],
     cluster: Pick<Circle, 'radius'>,
     options?: CircleClusterMarkerOptions
@@ -30,7 +30,7 @@ export const CircleClusterMarker: CircleClusterMarker = CircleMarker.extend({
   // #bounds
   initialize(
     this: CircleClusterMarker,
-    latLng: LatLng,
+    latLng: LatLngExpression,
     layers: SupportedMarker[],
     { radius }: Pick<Circle, 'radius'>,
     options: CircleClusterMarkerOptions = {}
