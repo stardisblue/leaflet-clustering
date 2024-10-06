@@ -1,7 +1,7 @@
 import {
   divIcon,
   DivIconOptions,
-  LatLng,
+  LatLngExpression,
   Marker,
   MarkerOptions,
   Util,
@@ -20,7 +20,7 @@ export type RoundDivClusterMarkerOptions = Omit<MarkerOptions, 'icon'> & {
 export interface RoundDivClusterMarker extends Marker {
   _layers: Record<number, SupportedMarker>;
   new (
-    latLng: LatLng,
+    latLng: LatLngExpression,
     layers: SupportedMarker[],
     cluster: CircleCluster,
     options?: RoundDivClusterMarkerOptions
@@ -32,7 +32,7 @@ export interface RoundDivClusterMarker extends Marker {
 export const RoundDivClusterMarker: RoundDivClusterMarker = Marker.extend({
   initialize(
     this: RoundDivClusterMarker,
-    latLng: LatLng,
+    latLng: LatLngExpression,
     layers: SupportedMarker[],
     cluster: CircleCluster,
     { icon, ...options }: RoundDivClusterMarkerOptions = {}
