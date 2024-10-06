@@ -1,5 +1,5 @@
-import { clamp } from './clamp';
 import { Circle } from './Circle';
+import { clamp } from './clamp';
 import { Rectangle } from './Rectangle';
 
 /**

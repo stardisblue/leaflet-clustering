@@ -8,7 +8,7 @@ import {
 } from 'leaflet';
 
 import { SupportedMarker } from './CircleClusterMarker';
-import { CircleCluster } from './clustering/Circle';
+import { CircleCluster } from './shape/Circle';
 
 export type RoundDivClusterMarkerOptions<
   T extends Pick<CircleCluster, 'radius'> = CircleCluster,

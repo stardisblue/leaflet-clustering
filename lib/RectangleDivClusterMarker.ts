@@ -8,7 +8,7 @@ import {
 } from 'leaflet';
 
 import { SupportedMarker } from './CircleClusterMarker';
-import { Rectangle, SquareCluster } from './clustering/Rectangle';
+import { Rectangle, SquareCluster } from './shape/Rectangle';
 
 export type RectangleDivClusterMarkerOptions<
   T extends Pick<Rectangle, 'maxX' | 'maxY' | 'minX' | 'minY'> = SquareCluster,

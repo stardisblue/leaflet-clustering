@@ -8,10 +8,14 @@ import {
 } from '@/CircleClusterMarker';
 import { Fsac } from '@/fsac';
 
-import { CircleCluster, CircleClusterOptions, CircleLeaf } from './Circle';
+import {
+  CircleCluster,
+  CircleClusterOptions,
+  CircleLeaf,
+} from '@/shape/Circle';
+import { RectangleLeaf } from '@/shape/Rectangle';
+import { SpatialCluster, SpatialLeaf } from '@/shape/SpatialObject';
 import type { ClusteringMethod, ClusterizeOptions } from './model';
-import { RectangleLeaf } from './Rectangle';
-import { SpatialCluster, SpatialLeaf } from './SpatialObject';
 
 type SpatialClusterConstructor<P extends SpatialCluster, O = any> = new (
   left: P | SpatialLeaf,

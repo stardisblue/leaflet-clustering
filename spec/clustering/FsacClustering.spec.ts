@@ -3,7 +3,7 @@
 import { icon, marker } from 'leaflet';
 import { describe, expect, test } from 'vitest';
 
-import { RectangleLeaf } from '@/clustering/Rectangle';
+import { RectangleLeaf } from '@/shape/Rectangle';
 
 const rect = ({
   x,
