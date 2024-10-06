@@ -3,9 +3,9 @@ import { BBox } from 'rbush';
 
 import { Circle } from './Circle';
 import { rectCircleOverlap, rectRectOverlap } from './overlap';
-import { SpatialObject, SpatialCluster, SpatialLeaf } from './SpatialObject';
+import { Shape, ShapedCluster, ShapedLeaf } from './Shape';
 
-export abstract class Rectangle implements SpatialObject {
+export abstract class Rectangle implements Shape {
   constructor(
     readonly x: number,
     readonly y: number,
@@ -22,10 +22,7 @@ export abstract class Rectangle implements SpatialObject {
       maxY: this.maxY + padding,
     };
   }
-  overlaps<T extends SpatialObject = SpatialObject>(
-    other: T,
-    padding: number
-  ): number {
+  overlaps<T extends Shape = Shape>(other: T, padding: number): number {
     if (other instanceof Rectangle) {
       return rectRectOverlap(this, other, padding);
     } else if (other instanceof Circle) {
@@ -38,16 +35,16 @@ export abstract class Rectangle implements SpatialObject {
 
 export type SquareClusterOptions = {
   scale?: (weight: number) => number;
-  weight?: <T>(leaf: SpatialCluster | SpatialLeaf<T>) => number;
+  weight?: <T>(leaf: ShapedCluster | ShapedLeaf<T>) => number;
   baseWidth?: number;
 };
 
-export class SquareCluster extends Rectangle implements SpatialCluster {
+export class SquareCluster extends Rectangle implements ShapedCluster {
   readonly w: number;
 
   constructor(
-    readonly left: SquareCluster | SpatialLeaf,
-    readonly right: SquareCluster | SpatialLeaf,
+    readonly left: SquareCluster | ShapedLeaf,
+    readonly right: SquareCluster | ShapedLeaf,
     {
       scale = Math.sqrt,
       weight = () => 1,
@@ -68,7 +65,7 @@ export class SquareCluster extends Rectangle implements SpatialCluster {
   }
 }
 
-export class RectangleLeaf extends Rectangle implements SpatialLeaf<Marker> {
+export class RectangleLeaf extends Rectangle implements ShapedLeaf<Marker> {
   constructor(
     x: number,
     y: number,

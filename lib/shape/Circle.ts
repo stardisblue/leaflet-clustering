@@ -2,9 +2,9 @@ import { CircleMarker } from 'leaflet';
 import { BBox } from 'rbush';
 
 import { circleCircleOverlap } from './overlap';
-import { SpatialCluster, SpatialLeaf, SpatialObject } from './SpatialObject';
+import { ShapedCluster, ShapedLeaf, Shape } from './Shape';
 
-export abstract class Circle implements SpatialObject {
+export abstract class Circle implements Shape {
   constructor(
     readonly x: number,
     readonly y: number,
@@ -24,10 +24,7 @@ export abstract class Circle implements SpatialObject {
   get minY(): number {
     return this.y - this.radius;
   }
-  overlaps<T extends SpatialObject = SpatialObject>(
-    other: T,
-    padding: number
-  ): number {
+  overlaps<T extends Shape = Shape>(other: T, padding: number): number {
     if (other instanceof Circle) {
       return circleCircleOverlap(this, other, padding);
     }
@@ -38,16 +35,16 @@ export abstract class Circle implements SpatialObject {
 
 export type CircleClusterOptions = {
   scale?: (weight: number) => number;
-  weight?: <T>(leaf: SpatialCluster | SpatialLeaf<T>) => number;
+  weight?: <T>(leaf: ShapedCluster | ShapedLeaf<T>) => number;
   baseRadius?: number;
 };
 
-export class CircleCluster extends Circle implements SpatialCluster {
+export class CircleCluster extends Circle implements ShapedCluster {
   readonly w: number;
 
   constructor(
-    readonly left: CircleCluster | SpatialLeaf,
-    readonly right: CircleCluster | SpatialLeaf,
+    readonly left: CircleCluster | ShapedLeaf,
+    readonly right: CircleCluster | ShapedLeaf,
     {
       scale = Math.sqrt,
       weight = () => 1,
@@ -67,7 +64,7 @@ export class CircleCluster extends Circle implements SpatialCluster {
   }
 }
 
-export class CircleLeaf extends Circle implements SpatialLeaf<CircleMarker> {
+export class CircleLeaf extends Circle implements ShapedLeaf<CircleMarker> {
   constructor(
     x: number,
     y: number,

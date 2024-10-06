@@ -14,17 +14,17 @@ import {
   CircleLeaf,
 } from '@/shape/Circle';
 import { RectangleLeaf } from '@/shape/Rectangle';
-import { SpatialCluster, SpatialLeaf } from '@/shape/SpatialObject';
+import { ShapedCluster, ShapedLeaf } from '@/shape/Shape';
 import type { ClusteringMethod, ClusterizeOptions } from './model';
 
-type SpatialClusterConstructor<P extends SpatialCluster, O = any> = new (
-  left: P | SpatialLeaf,
-  right: P | SpatialLeaf,
+type ShapedClusterConstructor<P extends ShapedCluster, O = any> = new (
+  left: P | ShapedLeaf,
+  right: P | ShapedLeaf,
   options: O
 ) => P;
 
 type ClusterMarkerConstructor<
-  P extends SpatialCluster,
+  P extends ShapedCluster,
   M extends SupportedMarker,
   O = any,
 > = new (
@@ -34,25 +34,25 @@ type ClusterMarkerConstructor<
   options?: O
 ) => M;
 
-type SpatialClusterOptions<S> =
-  S extends SpatialClusterConstructor<any, infer O> ? O : never;
+type ShapedClusterOptions<S> =
+  S extends ShapedClusterConstructor<any, infer O> ? O : never;
 
 type ClusterMarkerOptions<C> =
   C extends ClusterMarkerConstructor<any, any, infer O> ? O : never;
 
 export type FsacClusteringOptions<
-  S extends SpatialClusterConstructor<any>,
+  S extends ShapedClusterConstructor<any>,
   C extends ClusterMarkerConstructor<InstanceType<S>, any>,
 > = {
   padding?: number;
-  SpatialCluster?: S;
-  spatialClusterOptions?: Omit<SpatialClusterOptions<S>, 'padding'>;
+  ShapedCluster?: S;
+  shapedClusterOptions?: Omit<ShapedClusterOptions<S>, 'padding'>;
   ClusterMarker?: C;
   clusterMarkerOptions?: ClusterMarkerOptions<C>;
 };
 
 export class FsacClustering<
-  S extends SpatialClusterConstructor<any> = SpatialClusterConstructor<
+  S extends ShapedClusterConstructor<any> = ShapedClusterConstructor<
     CircleCluster,
     CircleClusterOptions
   >,
@@ -66,21 +66,21 @@ export class FsacClustering<
   >,
 > implements ClusteringMethod<InstanceType<C>>
 {
-  private fsac: Fsac<SpatialCluster | SpatialLeaf>;
+  private fsac: Fsac<ShapedCluster | ShapedLeaf>;
   private padding: number;
-  private SpatialCluster: S;
+  private ShapedCluster: S;
   private ClusterMarker: C;
   options: Omit<FsacClusteringOptions<S, C>, 'Clusterizer' | 'ClusterMarker'>;
 
   constructor({
-    SpatialCluster = CircleCluster as any,
+    ShapedCluster = CircleCluster as any,
     ClusterMarker = CircleClusterMarker as any,
     ...options
   }: FsacClusteringOptions<S, C> = {}) {
     options.padding ??= 4;
     this.padding = options.padding;
     this.options = options;
-    this.SpatialCluster = SpatialCluster;
+    this.ShapedCluster = ShapedCluster;
     this.ClusterMarker = ClusterMarker;
 
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
@@ -91,8 +91,8 @@ export class FsacClustering<
       compareMinY: (a, b) => a.minY - b.minY,
       overlap: (a, b) => a.overlaps(b, options.padding!),
       merge: (a, b) =>
-        new SpatialCluster(a, b, {
-          ...(options.spatialClusterOptions ?? {}),
+        new ShapedCluster(a, b, {
+          ...(options.shapedClusterOptions ?? {}),
           padding: this.padding,
         }),
     });
@@ -107,7 +107,7 @@ export class FsacClustering<
     const clusters = this.fsac.clusterize(leafs);
 
     return clusters.map((c) => {
-      if (c instanceof this.SpatialCluster)
+      if (c instanceof this.ShapedCluster)
         // TODO: I think this should be moved further up (to ClusterFeatureGroup)
         return new this.ClusterMarker(
           unproject(c),
@@ -116,7 +116,7 @@ export class FsacClustering<
           this.options.clusterMarkerOptions
         );
 
-      return (c as SpatialLeaf).data;
+      return (c as ShapedLeaf).data;
     });
   }
 
