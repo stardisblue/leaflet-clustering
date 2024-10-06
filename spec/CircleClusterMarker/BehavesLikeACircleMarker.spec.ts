@@ -1,8 +1,9 @@
 // @vitest-environment happy-dom
 
-import { CircleClusterMarker } from '@/CircleClusterMarker';
 import { latLng, map } from 'leaflet';
 import { describe, expect, it } from 'vitest';
+
+import { CircleClusterMarker } from '@/CircleClusterMarker';
 
 const cluster = { radius: 42 };
 

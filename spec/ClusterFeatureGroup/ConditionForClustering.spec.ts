@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { SupportedMarker } from '@/CircleClusterMarker';
 import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
-import { SpyNoClustering } from './SpyNoClustering';
+import { SpyNoClustering } from '../SpyNoClustering';
 
 type Context = {
   map: Map;
