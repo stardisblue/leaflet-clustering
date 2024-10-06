@@ -18,7 +18,7 @@ class NoClusteringWithInhibitor extends NoClustering {
 }
 
 let leafletMap: ReturnType<typeof map>;
-let cluster: InstanceType<typeof ClusterFeatureGroup>;
+let cluster: ClusterFeatureGroup<NoClustering>;
 let markers: SupportedMarker[];
 
 beforeEach(() => {

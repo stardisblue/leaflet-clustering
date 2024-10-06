@@ -1,13 +1,14 @@
 // @vitest-environment happy-dom
 
-import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
-import { NoClustering } from '@/clustering/NoClustering';
 import { circleMarker, map, marker } from 'leaflet';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
+import { NoClustering } from '@/clustering/NoClustering';
+
 describe('Add ClusterFeatureGroup to Map', () => {
   let leafletMap: ReturnType<typeof map>;
-  let cluster: InstanceType<typeof ClusterFeatureGroup>;
+  let cluster: ClusterFeatureGroup<NoClustering>;
 
   beforeEach(() => {
     leafletMap = map(document.createElement('div'));

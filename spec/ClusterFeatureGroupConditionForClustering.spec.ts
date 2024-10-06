@@ -8,7 +8,7 @@ import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
 import { NoClustering } from '@/clustering/NoClustering';
 
 let leafletMap: ReturnType<typeof map>;
-let cluster: InstanceType<typeof ClusterFeatureGroup>;
+let cluster: ClusterFeatureGroup<NoClustering>;
 let markers: SupportedMarker[];
 
 beforeEach(() => {

@@ -23,7 +23,7 @@ interface ClusterFeatureGroupCtor {
   ): ClusterFeatureGroup<InstanceType<C>>;
 }
 
-interface ClusterFeatureGroup<
+export interface ClusterFeatureGroup<
   C extends ClusteringMethod<any> = ClusteringMethod<any>,
 > extends FeatureGroup {
   _clusterer: C;
