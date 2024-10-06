@@ -1,9 +1,11 @@
+// @vitest-environment happy-dom
+
 import { circleMarker, marker } from 'leaflet';
 import { describe, expect, it } from 'vitest';
 
 import { CircleClusterMarker } from '@/CircleClusterMarker';
 
-describe('That the radius is defined by the cluster', () => {
+describe('The radius is defined by the cluster', () => {
   it("gets it's radius from the cluster", () => {
     const cluster = { radius: 42 };
     const marker = new CircleClusterMarker([0, 0], [], cluster, {
