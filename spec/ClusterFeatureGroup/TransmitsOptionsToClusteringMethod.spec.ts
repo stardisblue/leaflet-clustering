@@ -6,7 +6,7 @@ import { expect, it } from 'vitest';
 import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
 import { FsacClustering } from '@/clustering/FsacClustering';
 import { NoClustering } from '@/clustering/NoClustering';
-import { SpyNoClustering } from '../SpyNoClustering';
+import { SpyNoClustering } from '@spec/lib/clustering/SpyNoClustering';
 
 it('should use FsacClustering as the clustering method by default ', () => {
   const cluster = new ClusterFeatureGroup([]);
