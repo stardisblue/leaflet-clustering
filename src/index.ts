@@ -1,9 +1,9 @@
-import '../lib/style.css';
+import '@/lib/style.css';
 
 import { circleMarker, map, marker, tileLayer } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { ClusterFeatureGroup } from '../lib/ClusterFeatureGroup';
-import { RoundDivClusterMarker } from '../lib/RoundDivClusterMarker';
+import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
+import { RoundDivClusterMarker } from '@/RoundDivClusterMarker';
 import glottolog from './dataset/glottolog.json';
 
 const leafletMap = map('map').setView([48.9, 2.3], 6);
