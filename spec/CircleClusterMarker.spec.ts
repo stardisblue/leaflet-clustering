@@ -18,9 +18,8 @@ describe('Leaflet circle marker representing a cluster', () => {
       { id: 'frt', lat: -15, lng: 176 },
       { id: 'fry', lat: 55, lng: 5 },
     ].map((m) => circleMarker(m, { id: m.id } as any));
-    document.body.innerHTML = '<div id="map"></div>';
 
-    context.map = map(document.getElementById('map') as any as HTMLElement);
+    context.map = map(document.createElement('div'));
   });
 
   it<CustomContext>('should behave like a classical CircleMarker', ({

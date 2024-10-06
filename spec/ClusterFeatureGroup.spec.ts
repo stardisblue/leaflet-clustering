@@ -20,8 +20,7 @@ beforeEach<Context>((context) => {
     { id: 'fry', lat: 55, lng: 5 },
   ].map((m) => circleMarker(m));
 
-  document.body.innerHTML = '<div id="map"></div>';
-  context.map = map(document.getElementById('map') as any as HTMLElement);
+  context.map = map(document.createElement('div'));
 });
 
 it<Context>('should use FSAC for creating clusters', async ({
