@@ -3,11 +3,10 @@
 import { map } from 'leaflet';
 import { expect, it } from 'vitest';
 
-import { SupportedMarker } from '@/CircleClusterMarker';
 import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
 import { FsacClustering } from '@/clustering/FsacClustering';
-import { ClusteringMethod, ClusterizeOptions } from '@/clustering/model';
 import { NoClustering } from '@/clustering/NoClustering';
+import { SpyNoClustering } from './SpyNoClustering';
 
 it('should use FsacClustering as the clustering method by default ', () => {
   const cluster = new ClusterFeatureGroup([]);
@@ -21,25 +20,11 @@ it('should be possible to personnalize the clustering method', () => {
   expect(cluster.getClusteringMethod()).instanceof(NoClustering);
 });
 
-class NoClusteringSpyOption implements ClusteringMethod {
-  clusterizeOptions?: ClusterizeOptions;
-
-  constructor(readonly constructorOptions: { a?: string; b?: string }) {}
-
-  clusterize(
-    items: SupportedMarker[],
-    options: ClusterizeOptions
-  ): SupportedMarker[] {
-    this.clusterizeOptions = options;
-    return items;
-  }
-}
-
 it('should pass options to clustering method', () => {
   const clustererOptions = { a: 'this is an example', b: 'of options' };
 
   const cluster = new ClusterFeatureGroup([], {
-    method: NoClusteringSpyOption,
+    method: SpyNoClustering,
     ...clustererOptions,
   });
 
@@ -50,7 +35,7 @@ it('should pass options to clustering method', () => {
 
 it('should pass project and unproject to the clusteringmethod during clustering', () => {
   const cluster = new ClusterFeatureGroup([], {
-    method: NoClusteringSpyOption,
+    method: SpyNoClustering,
   });
 
   const leafletMap = map(document.createElement('div')).setView([48.9, 2.3], 3);

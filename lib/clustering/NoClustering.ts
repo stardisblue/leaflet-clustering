@@ -1,8 +1,11 @@
 import { SupportedMarker } from '@/CircleClusterMarker';
-import { ClusteringMethod } from '@/clustering/model';
+import { ClusteringMethod, ClusterizeOptions } from '@/clustering/model';
 
 export class NoClustering implements ClusteringMethod {
-  clusterize(items: SupportedMarker[]): SupportedMarker[] {
+  clusterize(
+    items: SupportedMarker[],
+    _options: ClusterizeOptions
+  ): SupportedMarker[] {
     return items;
   }
 }

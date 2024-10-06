@@ -5,16 +5,16 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { SupportedMarker } from '@/CircleClusterMarker';
 import { ClusterFeatureGroup } from '@/ClusterFeatureGroup';
-import { NoClustering } from '@/clustering/NoClustering';
+import { SpyNoClustering } from './SpyNoClustering';
 
 let leafletMap: ReturnType<typeof map>;
-let cluster: ClusterFeatureGroup<NoClustering>;
+let cluster: ClusterFeatureGroup<SpyNoClustering>;
 let markers: SupportedMarker[];
 
 beforeEach(() => {
   markers = [circleMarker([0, 0]), marker([0, 0])];
   leafletMap = map(document.createElement('div'));
-  cluster = new ClusterFeatureGroup(markers, { method: NoClustering });
+  cluster = new ClusterFeatureGroup(markers, { method: SpyNoClustering });
 });
 
 describe('Apply clustering when map view is set', () => {
@@ -40,14 +40,6 @@ it('should clear clusters when detaching from the map', () => {
 
   expect(cluster.getLayers()).toEqual([]);
 });
-
-class SpyNoClustering extends NoClustering {
-  hasBeenCalled = 0;
-  clusterize(items: SupportedMarker[]): SupportedMarker[] {
-    this.hasBeenCalled += 1;
-    return super.clusterize(items);
-  }
-}
 
 describe('Apply clustering when zooming on map', () => {
   beforeEach(() => {
