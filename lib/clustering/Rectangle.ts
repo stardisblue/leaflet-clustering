@@ -12,30 +12,31 @@ export abstract class Rectangle implements SpatialObject {
     readonly minX: number,
     readonly minY: number,
     readonly maxX: number,
-    readonly maxY: number,
-    private readonly padding: number
+    readonly maxY: number
   ) {}
-  toPaddedBBox(): BBox {
+  toPaddedBBox(padding: number): BBox {
     return {
-      minX: this.minX - this.padding,
-      minY: this.minY - this.padding,
-      maxX: this.maxX + this.padding,
-      maxY: this.maxY + this.padding,
+      minX: this.minX - padding,
+      minY: this.minY - padding,
+      maxX: this.maxX + padding,
+      maxY: this.maxY + padding,
     };
   }
-  overlaps<T extends SpatialObject = SpatialObject>(other: T): number {
+  overlaps<T extends SpatialObject = SpatialObject>(
+    other: T,
+    padding: number
+  ): number {
     if (other instanceof Rectangle) {
-      return rectRectOverlap(this, other);
+      return rectRectOverlap(this, other, padding);
     } else if (other instanceof Circle) {
-      return rectCircleOverlap(this, other);
+      return rectCircleOverlap(this, other, padding);
     }
 
-    return other.overlaps(this);
+    return other.overlaps(this, padding);
   }
 }
 
 export type SquareClusterOptions = {
-  padding: number;
   scale?: (weight: number) => number;
   weight?: <T>(leaf: SpatialCluster | SpatialLeaf<T>) => number;
   baseWidth?: number;
@@ -48,7 +49,6 @@ export class SquareCluster extends Rectangle implements SpatialCluster {
     readonly left: SquareCluster | SpatialLeaf,
     readonly right: SquareCluster | SpatialLeaf,
     {
-      padding,
       scale = Math.sqrt,
       weight = () => 1,
       baseWidth = 10,
@@ -63,7 +63,7 @@ export class SquareCluster extends Rectangle implements SpatialCluster {
 
     const r = scale(w) + baseWidth;
 
-    super(x, y, x - r, y - r, x + r, y + r, padding);
+    super(x, y, x - r, y - r, x + r, y + r);
     this.w = w;
   }
 }
@@ -72,7 +72,6 @@ export class RectangleLeaf extends Rectangle implements SpatialLeaf<Marker> {
   constructor(
     x: number,
     y: number,
-    padding: number,
     readonly data: Marker
   ) {
     const icon = data.getIcon();
@@ -92,6 +91,6 @@ export class RectangleLeaf extends Rectangle implements SpatialLeaf<Marker> {
     const maxX = minX + width;
     const maxY = minY + height;
 
-    super(x, y, minX, minY, maxX, maxY, padding);
+    super(x, y, minX, minY, maxX, maxY);
   }
 }

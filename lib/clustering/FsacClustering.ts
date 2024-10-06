@@ -86,10 +86,10 @@ export class FsacClustering<
     //  - DivIcon custom could allow custom shapes, but that will render them size independent,
     //    and should only be used for CircleClusterMarker representations
     this.fsac = new Fsac({
-      bbox: (item) => item.toPaddedBBox(),
+      bbox: (item) => item.toPaddedBBox(options.padding!),
       compareMinX: (a, b) => a.minX - b.minX,
       compareMinY: (a, b) => a.minY - b.minY,
-      overlap: (a, b) => a.overlaps(b),
+      overlap: (a, b) => a.overlaps(b, options.padding!),
       merge: (a, b) =>
         new SpatialCluster(a, b, {
           ...(options.spatialClusterOptions ?? {}),
@@ -124,9 +124,9 @@ export class FsacClustering<
     return (marker: SupportedMarker) => {
       const { x, y } = project(marker.getLatLng());
       if (marker instanceof CircleMarker) {
-        return new CircleLeaf(x, y, this.padding, marker);
+        return new CircleLeaf(x, y, marker);
       } else if (marker instanceof Marker) {
-        return new RectangleLeaf(x, y, this.padding, marker);
+        return new RectangleLeaf(x, y, marker);
       }
 
       throw new Error(

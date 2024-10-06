@@ -7,12 +7,11 @@ import { Rectangle } from './Rectangle';
  *
  * The value corresponds to the area of the overlapping rectangle. Does not take in account rotations
  */
-export function rectRectOverlap(a: Rectangle, b: Rectangle) {
-  const padded = b.toPaddedBBox();
+export function rectRectOverlap(a: Rectangle, b: Rectangle, padding: number) {
   const overlapX =
-    Math.min(a.maxX, padded.maxX) - Math.max(a.minX, padded.minX);
+    Math.min(a.maxX, b.maxX) - Math.max(a.minX, b.minX) + padding;
   const overlapY =
-    Math.min(a.maxY, padded.maxY) - Math.max(a.minY, padded.minY);
+    Math.min(a.maxY, b.maxY) - Math.max(a.minY, b.minY) + padding;
 
   if (overlapX < 0 && overlapY < 0) {
     return -(overlapX * overlapY);
@@ -41,10 +40,11 @@ export function circleCircleOverlap(
  *
  * The value corresponds to the overlapping distance squared
  */
-export function rectCircleOverlap(a: Rectangle, b: Circle) {
-  const bbox = a.toPaddedBBox();
-  const closestX = clamp(b.x, bbox.minX, bbox.maxX);
-  const closestY = clamp(b.y, bbox.minY, bbox.maxY);
+export function rectCircleOverlap(a: Rectangle, b: Circle, padding: number) {
+  const closestX = clamp(b.x, a.minX, a.maxX);
+  const closestY = clamp(b.y, a.minY, a.maxY);
 
-  return b.radius ** 2 - ((b.x - closestX) ** 2 + (b.y - closestY) ** 2);
+  return (
+    (b.radius + padding) ** 2 - ((b.x - closestX) ** 2 + (b.y - closestY) ** 2)
+  );
 }

@@ -19,7 +19,6 @@ const rect = ({
   new RectangleLeaf(
     x,
     y,
-    0,
     marker([0, 0], {
       icon: icon({
         iconAnchor: [0, 0],
@@ -54,8 +53,8 @@ describe('Rectangle Rectangle Overlap', () => {
   ])(
     'rectRectOverlap(%s, %s) -> %i',
     (a: RectangleLeaf, b: RectangleLeaf, expected) => {
-      expect(a.overlaps(b)).toBe(expected);
-      expect(b.overlaps(a)).toBe(expected);
+      expect(a.overlaps(b, 0)).toBe(expected);
+      expect(b.overlaps(a, 0)).toBe(expected);
     }
   );
 });

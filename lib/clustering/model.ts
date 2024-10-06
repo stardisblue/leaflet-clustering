@@ -29,8 +29,12 @@ export interface SpatialObject {
   readonly y: number;
   readonly minX: number;
   readonly minY: number;
-  toPaddedBBox(): BBox;
-  overlaps<T extends SpatialObject = SpatialObject>(other: T): number;
+
+  toPaddedBBox(padding: number): BBox;
+  overlaps<T extends SpatialObject = SpatialObject>(
+    other: T,
+    padding: number
+  ): number;
 }
 
 export interface SpatialLeaf<T = any> extends SpatialObject, Leaf<T> {
