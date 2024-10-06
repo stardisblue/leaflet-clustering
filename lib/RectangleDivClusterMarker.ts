@@ -1,38 +1,48 @@
 import {
   divIcon,
   DivIconOptions,
-  LatLng,
+  LatLngExpression,
   Marker,
   MarkerOptions,
   Util,
 } from 'leaflet';
 
 import { SupportedMarker } from './CircleClusterMarker';
-import { SquareCluster } from './clustering/Rectangle';
+import { Rectangle, SquareCluster } from './clustering/Rectangle';
 
-export type RectangleDivClusterMarkerOptions = Omit<MarkerOptions, 'icon'> & {
+export type RectangleDivClusterMarkerOptions<
+  T extends Pick<Rectangle, 'maxX' | 'maxY' | 'minX' | 'minY'> = SquareCluster,
+> = Omit<MarkerOptions, 'icon'> & {
   icon?: (
     layers: SupportedMarker[],
-    cluster: SquareCluster
+    cluster: T
   ) => Omit<DivIconOptions, 'icon' | 'iconSize' | 'iconAnchor'>;
 };
 
+interface RectangleDivClusterMarkerConstructor {
+  new <
+    T extends Pick<
+      Rectangle,
+      'maxX' | 'maxY' | 'minX' | 'minY'
+    > = SquareCluster,
+  >(
+    latLng: LatLngExpression,
+    layers: SupportedMarker[],
+    cluster: T,
+    options?: RectangleDivClusterMarkerOptions<T>
+  ): RectangleDivClusterMarker;
+}
+
 export interface RectangleDivClusterMarker extends Marker {
   _layers: Record<number, SupportedMarker>;
-  new (
-    latLng: LatLng,
-    layers: SupportedMarker[],
-    cluster: SquareCluster,
-    options?: RectangleDivClusterMarkerOptions
-  ): RectangleDivClusterMarker;
   getLayers(): SupportedMarker[];
   getLayerId(layer: SupportedMarker): number;
 }
-export const RectangleDivClusterMarker: RectangleDivClusterMarker =
+export const RectangleDivClusterMarker: RectangleDivClusterMarkerConstructor =
   Marker.extend({
     initialize(
       this: RectangleDivClusterMarker,
-      latLng: LatLng,
+      latLng: LatLngExpression,
       layers: SupportedMarker[],
       cluster: SquareCluster,
       { icon, ...options }: RectangleDivClusterMarkerOptions = {}
