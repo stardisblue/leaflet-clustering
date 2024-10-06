@@ -52,3 +52,16 @@ describe('Accepts various LatLng descriptions', () => {
     expect(marker.getLatLng()).toEqual(latLng(5, 5));
   });
 });
+
+it('accepts Icon options', () => {
+  const marker = new RectangleDivClusterMarker(latLng(5, 5), [], cluster, {
+    icon() {
+      return { className: 'custom-classname', attribution: 'hello world' };
+    },
+  });
+
+  expect(marker.getIcon().options).toMatchObject({
+    className: 'custom-classname',
+    attribution: 'hello world',
+  });
+});
