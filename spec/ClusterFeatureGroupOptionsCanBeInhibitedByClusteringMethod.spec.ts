@@ -65,4 +65,17 @@ describe('Inhibit restrictToVisibleBounds with clustering method', () => {
     leafletMap.setZoom(12);
     expect(cluster.getLayers()).toEqual(markers);
   });
+
+  it('should be passed to ClusteringMethod when inhibited', () => {
+    cluster = new ClusterFeatureGroup(markers, {
+      method: SpyNoClustering,
+      restrictToVisibleBounds: true,
+      inhibitors: ['restrictToVisibleBounds'],
+    });
+
+    expect(cluster.getClusteringMethod().constructorOptions).toEqual({
+      restrictToVisibleBounds: true,
+      inhibitors: ['restrictToVisibleBounds'],
+    });
+  });
 });
