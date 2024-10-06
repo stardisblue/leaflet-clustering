@@ -1,9 +1,10 @@
 // @vitest-environment happy-dom
 
-import { circleMarker } from 'leaflet';
+import { circleMarker, divIcon, marker } from 'leaflet';
 import { describe, expect, it } from 'vitest';
 
-import { circleCircleOverlap } from './overlap';
+import { circleCircleOverlap, rectRectOverlap } from './overlap';
+import { RectangleLeaf } from './Rectangle';
 import { CircleLeaf } from './Circle';
 
 function c(x: number, y: number, radius: number) {
@@ -47,6 +48,52 @@ describe('Circle Circle overlap', () => {
     ({ a, b }) => {
       expect(circleCircleOverlap(a, b, 2)).toBeLessThanOrEqual(0);
       expect(circleCircleOverlap(b, a, 2)).toBeLessThanOrEqual(0);
+    }
+  );
+});
+
+function r(x: number, y: number, h: number, w: number) {
+  const icon = divIcon({ iconSize: [h, w], iconAnchor: [0, 0] });
+  return new RectangleLeaf(x, y, marker([0, 0], { icon }));
+}
+
+describe('Rectangle Rectangle Overlap', () => {
+  it.each([
+    { a: r(0, 0, 10, 10), b: r(9, 0, 5, 5) },
+    { a: r(1, 1, 10, 10), b: r(0, 9, 5, 5) },
+    { a: r(1, 1, 10, 10), b: r(3, 3, 5, 5) },
+  ])('is >0 if there is overlap between $a & $b', ({ a, b }) => {
+    expect(rectRectOverlap(a, b, 0)).toBeGreaterThan(0);
+    expect(rectRectOverlap(b, a, 0)).toBeGreaterThan(0);
+  });
+
+  it.each([
+    { a: r(0, 0, 10, 10), b: r(15, 0, 5, 5) },
+    { a: r(1, 1, 10, 10), b: r(0, 16, 5, 5) },
+    { a: r(1, 1, 10, 10), b: r(12, 12, 5, 5) },
+  ])('is <=0 if there is no overlap between $a & $b', ({ a, b }) => {
+    expect(rectRectOverlap(a, b, 0)).toBeLessThanOrEqual(0);
+    expect(rectRectOverlap(b, a, 0)).toBeLessThanOrEqual(0);
+  });
+
+  it.each([
+    { a: r(0, 0, 10, 10), b: r(11, 0, 5, 5) },
+    { a: r(1, 1, 10, 10), b: r(0, 11, 5, 5) },
+    { a: r(1, 1, 10, 10), b: r(6, 6, 5, 5) },
+  ])('is > 0 if there is overlap between $a & $b with padding', ({ a, b }) => {
+    expect(rectRectOverlap(a, b, 2)).toBeGreaterThan(0);
+    expect(rectRectOverlap(b, a, 2)).toBeGreaterThan(0);
+  });
+
+  it.each([
+    { a: r(0, 0, 10, 10), b: r(13, 0, 5, 5) },
+    { a: r(1, 1, 10, 10), b: r(0, 14, 5, 5) },
+    { a: r(1, 1, 10, 10), b: r(15, 15, 5, 5) },
+  ])(
+    'is <=0 if there is no overlap between $a & $b with padding',
+    ({ a, b }) => {
+      expect(rectRectOverlap(a, b, 2)).toBeLessThanOrEqual(0);
+      expect(rectRectOverlap(b, a, 2)).toBeLessThanOrEqual(0);
     }
   );
 });
