@@ -1,10 +1,20 @@
 # Leaflet Clustering
 
-## Todo
+High performance clustering for leaflet.
 
-- [x] allow Divicon to be used to personnalize the ClusterMarker
-- [x] restrict clusters to current view (`restrictToVisibleBounds`)
-- [ ] allow to change the cluster algorithm
+![cluster map example](example/map.png)
+
+If you want an out-of the box experience, go check out [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster).
+
+If you want more fine-grained control on how clustering is done and mess around with markers, you're at the right place.
+
+
+## Getting Started
+
+soon(tm)
+
+## Wishlist
+
 - [ ] allow any cluster marker to use convex hull
 - [ ] allow any cluster marker to use spiderfier
 
