@@ -13,5 +13,11 @@ export default defineConfig({
       '@spec': resolve(__dirname, './spec'),
     },
   },
-  plugins: [dts()],
+  plugins: [
+    dts({
+      include: ['lib'],
+      exclude: ['**/*.{spec,test}.ts'],
+      rollupTypes: true,
+    }),
+  ],
 });
