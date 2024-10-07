@@ -1,5 +1,3 @@
-// @vitest-environment happy-dom
-
 import { circleMarker, marker } from 'leaflet';
 import { describe, expect, it } from 'vitest';
 

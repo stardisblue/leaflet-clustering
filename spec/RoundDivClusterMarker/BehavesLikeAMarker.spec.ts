@@ -1,5 +1,3 @@
-// @vitest-environment happy-dom
-
 import { RoundDivClusterMarker } from '@/RoundDivClusterMarker';
 import { latLng, map } from 'leaflet';
 import { describe, expect, it } from 'vitest';

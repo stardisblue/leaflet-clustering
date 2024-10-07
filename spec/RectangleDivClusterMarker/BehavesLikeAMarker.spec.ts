@@ -1,5 +1,3 @@
-// @vitest-environment happy-dom
-
 import { RectangleDivClusterMarker } from '@/RectangleDivClusterMarker';
 import { latLng, map } from 'leaflet';
 import { describe, expect, it } from 'vitest';

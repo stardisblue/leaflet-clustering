@@ -11,6 +11,7 @@ export default defineWorkspace([
       name: 'node',
       exclude: ['spec/**/*.browser.spec.ts'],
       include: ['lib/**/*.{test,spec}.ts', 'spec/**/*.{test,spec}.ts'],
+      environment: 'happy-dom',
     },
   },
   {

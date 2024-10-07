@@ -1,5 +1,3 @@
-// @vitest-environment happy-dom
-
 import { map } from 'leaflet';
 import { expect, it } from 'vitest';
 
