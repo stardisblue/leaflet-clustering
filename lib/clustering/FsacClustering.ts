@@ -1,18 +1,10 @@
 import { CircleMarker, LatLng, Marker, Point } from 'leaflet';
 
 import { flatten } from '@/binary-tree-traversal';
-import {
-  CircleClusterMarker,
-  CircleClusterMarkerOptions,
-  SupportedMarker,
-} from '@/CircleClusterMarker';
+import { CircleClusterMarker, SupportedMarker } from '@/CircleClusterMarker';
 import { Fsac } from '@/fsac';
 
-import {
-  CircleCluster,
-  CircleClusterOptions,
-  CircleLeaf,
-} from '@/shape/Circle';
+import { CircleCluster, CircleLeaf } from '@/shape/Circle';
 import { RectangleLeaf } from '@/shape/Rectangle';
 import { ShapedCluster, ShapedLeaf } from '@/shape/Shape';
 import type { ClusteringMethod, ClusterizeOptions } from './model';
@@ -52,18 +44,11 @@ export type FsacClusteringOptions<
 };
 
 export class FsacClustering<
-  S extends ShapedClusterConstructor<any> = ShapedClusterConstructor<
-    CircleCluster,
-    CircleClusterOptions
-  >,
+  S extends ShapedClusterConstructor<any> = typeof CircleCluster,
   C extends ClusterMarkerConstructor<
     InstanceType<S>,
     any
-  > = ClusterMarkerConstructor<
-    InstanceType<S>,
-    CircleClusterMarker,
-    CircleClusterMarkerOptions
-  >,
+  > = typeof CircleClusterMarker,
 > implements ClusteringMethod<InstanceType<C>>
 {
   private fsac: Fsac<ShapedCluster | ShapedLeaf>;
