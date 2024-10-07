@@ -1,4 +1,4 @@
-import '@/lib/style.css';
+import '@/style.css';
 
 import { circleMarker, map, marker, tileLayer } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
