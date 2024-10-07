@@ -20,5 +20,5 @@
     "noFallthroughCasesInSwitch": true,
     "paths": { "@/*": ["./lib/*"], "@spec/*": ["./spec/*"] }
   },
-  "include": ["lib", "src", "spec"]
+  "include": ["lib", "example/src", "spec"]
 }
