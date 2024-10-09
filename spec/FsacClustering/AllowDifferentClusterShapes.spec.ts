@@ -1,9 +1,10 @@
+import { circleMarker, Map, map, marker } from 'leaflet';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { FsacClustering } from '@/clustering/FsacClustering';
 import { RectangleDivClusterMarker } from '@/RectangleDivClusterMarker';
 import { RoundDivClusterMarker } from '@/RoundDivClusterMarker';
 import { SquareCluster } from '@/shape/Rectangle';
-import { circleMarker, Map, map, marker } from 'leaflet';
-import { beforeEach, describe, expect, it } from 'vitest';
 
 type Context = {
   map: Map;
