@@ -9,20 +9,20 @@ import { RectangleLeaf } from '@/shape/Rectangle';
 import { ShapedCluster, ShapedLeaf } from '@/shape/Shape';
 import type { ClusteringMethod, ClusterizeOptions } from './model';
 
-type ShapedClusterConstructor<P extends ShapedCluster, O = any> = new (
-  left: P | ShapedLeaf,
-  right: P | ShapedLeaf,
+type ShapedClusterConstructor<S extends ShapedCluster, O = any> = new (
+  left: S | ShapedLeaf,
+  right: S | ShapedLeaf,
   options: O
-) => P;
+) => S;
 
 type ClusterMarkerConstructor<
-  P extends ShapedCluster,
+  S extends ShapedCluster,
   M extends SupportedMarker,
   O = any,
 > = new (
   latLng: LatLng,
   layers: SupportedMarker[],
-  cluster: P,
+  cluster: S,
   options?: O
 ) => M;
 
@@ -55,7 +55,7 @@ export class FsacClustering<
   private padding: number;
   private ShapedCluster: S;
   private ClusterMarker: C;
-  options: Omit<FsacClusteringOptions<S, C>, 'Clusterizer' | 'ClusterMarker'>;
+  options: Omit<FsacClusteringOptions<S, C>, 'ShapedCluster' | 'ClusterMarker'>;
 
   constructor({
     ShapedCluster = CircleCluster as any,
