@@ -68,8 +68,6 @@ export class FsacClustering<
     this.ShapedCluster = ShapedCluster;
     this.ClusterMarker = ClusterMarker;
 
-    //  - DivIcon custom could allow custom shapes, but that will render them size independent,
-    //    and should only be used for CircleClusterMarker representations
     this.fsac = new Fsac({
       bbox: (item) => item.toPaddedBBox(options.padding!),
       compareMinX: (a, b) => a.minX - b.minX,
