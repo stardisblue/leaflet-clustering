@@ -9,14 +9,8 @@ import {
 } from './clustering/model';
 import { Options } from './options';
 
-type ClusterFeatureGroupMethodOptions<
-  C extends ClusteringMethodConstructor<any>,
-> = {
-  method?: C;
-} & ClusteringMethodOptions<C>;
-
 type ClusterFeatureGroupOptions<C extends ClusteringMethodConstructor<any>> =
-  Options & ClusterFeatureGroupMethodOptions<C>;
+  Options & ClusteringMethodOptions<C> & { method?: C };
 
 interface ClusterFeatureGroupConstructor {
   new <C extends ClusteringMethodConstructor<any> = typeof FsacClustering>(
