@@ -3,13 +3,14 @@ import { ClusterizeOptions } from '@/clustering/model';
 import { NoClustering } from '@/clustering/NoClustering';
 import { Options } from '@/options';
 
-export class SpyNoClustering implements NoClustering {
+export class SpyNoClustering extends NoClustering {
   readonly inhibitors?: (keyof Options)[];
   clusterizeOptions?: ClusterizeOptions;
   hasBeenCalled = 0;
   items?: SupportedMarker[];
 
   constructor(readonly constructorOptions: { inhibitors?: (keyof Options)[] }) {
+    super();
     this.inhibitors = constructorOptions.inhibitors;
   }
 

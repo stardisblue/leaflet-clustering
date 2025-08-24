@@ -52,7 +52,6 @@ export class FsacClustering<
 > implements ClusteringMethod<InstanceType<C>>
 {
   private fsac: Fsac<ShapedCluster | ShapedLeaf>;
-  private padding: number;
   private ShapedCluster: S;
   private ClusterMarker: C;
   options: Omit<FsacClusteringOptions<S, C>, 'ShapedCluster' | 'ClusterMarker'>;
@@ -63,7 +62,6 @@ export class FsacClustering<
     ...options
   }: FsacClusteringOptions<S, C> = {}) {
     options.padding ??= 4;
-    this.padding = options.padding;
     this.options = options;
     this.ShapedCluster = ShapedCluster;
     this.ClusterMarker = ClusterMarker;
@@ -76,7 +74,7 @@ export class FsacClustering<
       merge: (a, b) =>
         new ShapedCluster(a, b, {
           ...(options.shapedClusterOptions ?? {}),
-          padding: this.padding,
+          padding: this.options.padding,
         }),
     });
   }
