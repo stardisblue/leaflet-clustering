@@ -1,0 +1,28 @@
+{
+  "@context": "https://w3id.org/codemeta/3.0",
+  "type": "SoftwareSourceCode",
+  "applicationCategory": "Computer Science [cs]",
+  "author": [
+    {
+      "id": "https://orcid.org/0000-0002-9203-4229",
+      "type": "Person",
+      "email": "stardisblue@gmail.com",
+      "familyName": "Chen",
+      "givenName": "Fati"
+    }
+  ],
+  "codeRepository": "git+https://github.com/stardisblue/leaflet-clustering",
+  "dateCreated": "2024-09-20",
+  "description": "High performance clustering for leaflet.",
+  "keywords": ["map", "mapping", "clustering", "leaflet", "leaflet-plugin"],
+  "license": "https://spdx.org/licenses/MIT",
+  "name": "leaflet-clustering",
+  "programmingLanguage": "Typescript",
+  "runtimePlatform": "browser",
+  "codemeta:contIntegration": {
+    "id": "https://github.com/stardisblue/leaflet-clustering/actions/workflows/node.js.yml"
+  },
+  "continuousIntegration": "https://github.com/stardisblue/leaflet-clustering/actions/workflows/node.js.yml",
+  "developmentStatus": "active",
+  "issueTracker": "https://github.com/stardisblue/leaflet-clustering/issues"
+}
