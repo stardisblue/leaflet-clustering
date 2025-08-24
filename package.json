@@ -1,6 +1,5 @@
 {
-  "name": "leaflet-clusterize",
-  "private": true,
+  "name": "leaflet-clustering",
   "version": "0.0.0",
   "type": "module",
   "main": "dist/main.js",
