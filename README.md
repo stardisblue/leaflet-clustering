@@ -20,17 +20,22 @@ If you want an out-of-the-box experience, go check out [Leaflet.markercluster](h
 
 If you want more fine-grained control on how clustering is done and mess around with markers, you're at the right place.
 
-## Getting Started (npm)
+## Getting Started
 
 To use leaflet-clustering in your project:
 
-**Install via npm** :
+### Peer Dependencies
+
+- Requires [Leaflet](https://leafletjs.com/) as a peer dependency.
+- Supported Leaflet versions: **v1.7.1 and above**
+
+### Install via npm
 
 ```bash
 npm install leaflet-clustering leaflet
 ```
 
-**Import and use in your code**:
+### Import and use in your code
 
 ```typescript
 import { ClusterFeatureGroup } from 'leaflet-clustering';
@@ -52,7 +57,7 @@ const clusters = new ClusterFeatureGroup(markers, {
 clusters.addTo(leafletMap);
 ```
 
-**Bind popups or other interactions**:
+### Bind popups or other interactions
 
 ```typescript
 clusters.bindPopup((layer) => `Cluster contains ${layer.getLayers().length} markers`);
@@ -70,28 +75,95 @@ See [API section below](#api) for usage details.
 
 ## API
 
-### ClusterFeatureGroup(_markers_, _options_)
+### ClusterFeatureGroup(markers, options)
 
-The `ClusterFeatureGroup` is a class that extends Leaflet's `FeatureGroup` to provide clustering functionality for markers. It requires an array of markers and an optional configuration object.
+The `ClusterFeatureGroup` class extends Leaflet's `FeatureGroup` to provide clustering for markers. You only need to provide an array of markers and an optional configuration object.
 
-**_markers_**: An array of `CircleMarker` or `Marker` instances that you want to cluster.
+- **markers**: Array of Leaflet marker instances to be clustered.
+- **options**: Object to configure clustering behavior. Common options:
+  - `restrictToVisibleBounds`: Restrict clustering to markers within the current map view (default: `false`).
+  - `ClusterMarker`: Choose a marker style for clusters (e.g., `CircleClusterMarker`, `RoundDivClusterMarker`).
+  - `ShapedCluster`: Choose a cluster shape (e.g., `CircleCluster`, `SquareCluster`).
+  - `clusterMarkerOptions`: Options for customizing cluster marker appearance.
+  - `shapedClusterOptions`: Options for customizing cluster shape.
+  - `padding`: Padding around clusters in pixels (default: `4`).
 
-**_options_**: An optional object to configure the clustering behavior. It includes:
+See usage examples below for typical configurations.
 
-- **method**: A constructor for the clustering method to be used. Defaults to `FsacClustering`.
-- **restrictToVisibleBounds**: A boolean indicating whether clustering should be restricted to markers within the current map view. Defaults to `false`.
-- **FsacClustering**: Options specific to the default `FsacClustering` method, which are extracted from the `ClusterFeatureGroup` options. These include:
-    - **padding**: A number specifying the padding to be used around clusters. Defaults to `4`.
-    - **ShapedCluster**: A constructor for the shaped cluster to be used. Defaults to `CircleCluster`.
-    - **shapedClusterOptions**: Options specific to the shaped cluster, excluding `padding`.
-    - **ClusterMarker**: A constructor for the cluster marker to be used. Defaults to `CircleClusterMarker`.
-    - **clusterMarkerOptions**: Options specific to the cluster marker.
+---
 
-The `ClusterFeatureGroup` provides several methods and properties to interact with the clustering:
+### Advanced Options & Customization
 
-- **getLayers()**: Returns the layers created by the clustering method.
-- **getClusteringMethod()**: Returns the current clustering method instance.
-- **clusterize()**: Triggers the clustering process for the current markers and map state.
+For advanced users, you can further customize clustering behavior and marker appearance:
+
+- **method**: Constructor for the clustering method. Default is `FsacClustering`. [Source](lib/clustering/FsacClustering.ts)
+- **FsacClustering**: Options for the default clustering method:
+  - `padding`: Padding around clusters in pixels (default: `4`).
+  - `ShapedCluster`: Constructor for the shaped cluster. [CircleCluster](lib/shape/Circle.ts), [SquareCluster](lib/shape/Rectangle.ts)
+  - `shapedClusterOptions`: Options for the shaped cluster, e.g., `baseRadius` for circles.
+  - `ClusterMarker`: Constructor for the cluster marker. [CircleClusterMarker](lib/CircleClusterMarker.ts), [RoundDivClusterMarker](lib/RoundDivClusterMarker.ts), [RectangleDivClusterMarker](lib/RectangleDivClusterMarker.ts)
+  - `clusterMarkerOptions`: Options for the cluster marker, e.g., `fillColor` or custom styles.
+
+For more details, see:
+- [`lib/clustering/FsacClustering.ts`](lib/clustering/FsacClustering.ts)
+- [`lib/shape/Circle.ts`](lib/shape/Circle.ts)
+- [`lib/shape/Rectangle.ts`](lib/shape/Rectangle.ts)
+- [`lib/CircleClusterMarker.ts`](lib/CircleClusterMarker.ts)
+- [`lib/RoundDivClusterMarker.ts`](lib/RoundDivClusterMarker.ts)
+- [`lib/RectangleDivClusterMarker.ts`](lib/RectangleDivClusterMarker.ts)
+
+## Available ShapedClusters
+- `CircleCluster` (see `lib/shape/Circle.ts`)
+- `SquareCluster` (see `lib/shape/Rectangle.ts`)
+
+## Available ClusterMarkers
+- `CircleClusterMarker` (see `lib/CircleClusterMarker.ts`)
+- `RoundDivClusterMarker` (see `lib/RoundDivClusterMarker.ts`)
+- `RectangleDivClusterMarker` (see `lib/RectangleDivClusterMarker.ts`)
+
+### Compatibility Table
+| ShapedCluster   | Compatible ClusterMarkers                |
+|-----------------|------------------------------------------|
+| CircleCluster   | CircleClusterMarker, RoundDivClusterMarker|
+| SquareCluster   | RectangleDivClusterMarker                |
+
+> **Note:** Using an incompatible combination will result in errors or unexpected behavior.
+
+### Usage Examples
+
+#### CircleCluster with CircleClusterMarker (default)
+```typescript
+const clusters = new ClusterFeatureGroup(markers, {
+  // CircleCluster and CircleClusterMarker are default
+});
+```
+
+#### CircleCluster with RoundDivClusterMarker
+```typescript
+const clusters = new ClusterFeatureGroup(markers, {
+  ClusterMarker: RoundDivClusterMarker,
+});
+```
+
+#### SquareCluster with RectangleDivClusterMarker
+```typescript
+import { ClusterFeatureGroup, SquareCluster, RectangleDivClusterMarker } from 'leaflet-clustering';
+
+const clusters = new ClusterFeatureGroup(markers, {
+  ShapedCluster: SquareCluster,
+  ClusterMarker: RectangleDivClusterMarker,
+});
+```
+
+#### Passing options
+```typescript
+const clusters = new ClusterFeatureGroup(markers, {
+  clusterMarkerOptions: { fillColor: 'red' },
+  shapedClusterOptions: { baseRadius: 20 },
+});
+```
+
+---
 
 ## Wishlist
 
@@ -104,32 +176,50 @@ The `ClusterFeatureGroup` provides several methods and properties to interact wi
 - [ ] cache zoom levels
 - [ ] allow to add and remove markers
 
+---
+
 ## Contributing
 
 To contribute or develop locally:
 
-**Clone the repository**:
+### Clone the repository
 ```bash
 git clone https://github.com/stardisblue/leaflet-clustering.git
 cd leaflet-clustering
 ```
 
-**Install dependencies**:
+### Install dependencies
 ```bash
 npm install
 ```
 
-**Run the development server**:
+### Run the development server
 ```bash
 npm run dev
 ```
 
-**Build the project**:
+### Build the project
 ```bash
 npm run build
 ```
 
-**Run tests**:
+### Run tests
 ```bash
 npm test
 ```
+
+---
+
+## Credits
+
+- Built on top of [Leaflet](https://leafletjs.com/).
+- Inspired by [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster).
+- Uses open-source libraries as listed in `package.json`.
+
+---
+
+## License
+
+[![license](https://img.shields.io/github/license/stardisblue/leaflet-clustering)](LICENSE)
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
