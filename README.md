@@ -63,15 +63,13 @@ clusters.addTo(leafletMap);
 clusters.bindPopup((layer) => `Cluster contains ${layer.getLayers().length} markers`);
 ```
 
----
-
 ## Documentation & Examples
 
 See [API section below](#api) for usage details.
 
-> More examples and documentation coming soon!
+A working example can be found in the [example](example/) folder.
 
----
+> More examples and documentation coming soon!
 
 ## API
 
@@ -89,8 +87,6 @@ The `ClusterFeatureGroup` class extends Leaflet's `FeatureGroup` to provide clus
   - `padding`: Padding around clusters in pixels (default: `4`).
 
 See usage examples below for typical configurations.
-
----
 
 ### Advanced Options & Customization
 
@@ -163,8 +159,6 @@ const clusters = new ClusterFeatureGroup(markers, {
 });
 ```
 
----
-
 ## Wishlist
 
 - [ ] allow any cluster marker to use convex hull
@@ -175,8 +169,6 @@ const clusters = new ClusterFeatureGroup(markers, {
 - [ ] animate zoom transitions
 - [ ] cache zoom levels
 - [ ] allow to add and remove markers
-
----
 
 ## Contributing
 
@@ -208,15 +200,11 @@ npm run build
 npm test
 ```
 
----
-
 ## Credits
 
 - Built on top of [Leaflet](https://leafletjs.com/).
 - Inspired by [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster).
 - Uses open-source libraries as listed in `package.json`.
-
----
 
 ## License
 
