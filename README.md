@@ -1,75 +1,72 @@
 # Leaflet Clustering
 
+[![npm version](https://img.shields.io/npm/v/leaflet-clustering.svg)](https://www.npmjs.com/package/leaflet-clustering)
+[![build status](https://github.com/stardisblue/leaflet-clustering/actions/workflows/publish.yml/badge.svg)](https://github.com/stardisblue/leaflet-clustering/actions)
+[![license](https://img.shields.io/github/license/stardisblue/leaflet-clustering)](LICENSE)
+
 High performance clustering for leaflet.
 
 ![cluster map example](example/map.png)
+
+## Features
+
+- High-performance marker clustering for Leaflet
+- Fine-grained control over clustering methods and marker appearance
+- Restrict clustering to visible map bounds
+- TypeScript support out of the box
+- Easily extensible for custom clustering logic
 
 If you want an out-of-the-box experience, go check out [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster).
 
 If you want more fine-grained control on how clustering is done and mess around with markers, you're at the right place.
 
-## Getting Started
+## Getting Started (npm)
 
-**Clone the repository**:
+To use leaflet-clustering in your project:
+
+**Install via npm** :
+
 ```bash
-git clone https://github.com/stardisblue/leaflet-clusterize.git
-cd leaflet-clusterize
+npm install leaflet-clustering leaflet
 ```
 
-**Install dependencies**:
-```bash
-npm install
-```
+**Import and use in your code**:
 
-**Run the development server**:
-```bash
-npm run dev
-```
-
-**Build the project**:
-```bash
-npm run build
-```
-
-**Run tests**:
-```bash
-npm test
-```
-
-## Usage
-
-**Import the necessary modules**:
 ```typescript
+import { ClusterFeatureGroup } from 'leaflet-clustering';
 import { map, tileLayer, marker } from 'leaflet';
-import { ClusterFeatureGroup } from 'leaflet-clusterize';
-```
 
-**Initialize the map**:
-```typescript
 const leafletMap = map('map').setView([48.9, 2.3], 6);
 tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+  attribution: '&copy; OpenStreetMap contributors',
 }).addTo(leafletMap);
-```
 
-**Create a dummy markers array**:
-```typescript
 const markers = [
   marker([48.8566, 2.3522]), // Paris
   marker([51.5074, -0.1278]) // London
 ];
 
 const clusters = new ClusterFeatureGroup(markers, {
-  // This option ensures that only markers within the current map view are clustered.
   restrictToVisibleBounds: true,
 });
 clusters.addTo(leafletMap);
 ```
 
 **Bind popups or other interactions**:
+
 ```typescript
 clusters.bindPopup((layer) => `Cluster contains ${layer.getLayers().length} markers`);
 ```
+
+---
+
+## Documentation & Examples
+
+See [API section below](#api) for usage details.
+
+> More examples and documentation coming soon!
+
+---
 
 ## API
 
@@ -106,3 +103,33 @@ The `ClusterFeatureGroup` provides several methods and properties to interact wi
 - [ ] animate zoom transitions
 - [ ] cache zoom levels
 - [ ] allow to add and remove markers
+
+## Contributing
+
+To contribute or develop locally:
+
+**Clone the repository**:
+```bash
+git clone https://github.com/stardisblue/leaflet-clustering.git
+cd leaflet-clustering
+```
+
+**Install dependencies**:
+```bash
+npm install
+```
+
+**Run the development server**:
+```bash
+npm run dev
+```
+
+**Build the project**:
+```bash
+npm run build
+```
+
+**Run tests**:
+```bash
+npm test
+```
